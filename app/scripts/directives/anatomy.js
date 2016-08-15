@@ -49,15 +49,15 @@ angular.module('anatomyApp')
 	      });
 
 			human.camera.on('update', function(update) {
-			  console.log("Camera flew to: " + JSON.stringify(update));
+			  // console.log(JSON.stringify(lodash.pick(update, ['eye','look','up'])));
 			});
 
-			var animationCycle = null;
 
 			human.on("ready", function() {
-				var loadedAt = getMillis();
+				$scope.modelReady = true;
 
-			  animationCycle = $interval( function() {
+				var loadedAt = getMillis();
+				var animationCycle = $interval( function() {
 			  	if ( !$scope.animated ) {
 			  		$interval.cancel(animationCycle);
 			  	}
@@ -81,6 +81,35 @@ angular.module('anatomyApp')
 			  	}
 			  }, 30);
 			});
+
+			var init = true;
+			$scope.$watch('animated', function() {
+				if (init) { init = false; return; }
+				console.log('animate change');
+
+				if ( $scope.animated ) {
+					human.camera.flyTo( $scope.scene.camera[0], function() {
+						var startedAt = getMillis();
+						var animationCycle = $interval( function() {
+					  	if ( !$scope.animated ) {
+					  		$interval.cancel(animationCycle);
+					  	}
+
+					  	var diff = getMillis()-startedAt;
+				  		var x = diff/floatDuration,
+									y = (Math.cos(Math.PI*(2*x+1))+1)/2;
+
+				  		var cam = tweenCamera($scope.scene.camera[0], $scope.scene.camera[1], y);
+				  		human.camera.jumpTo(cam);
+					  }, 30);
+					});
+				} else {
+					console.log('flying to default pos');
+					human.camera.flyTo( $scope.scene.interact, function() {
+						console.log('flown to');
+					});
+				}
+			});
 		});
 
     $scope.$on('$destroy', function() {
@@ -102,6 +131,9 @@ angular.module('anatomyApp')
       link: function postLink(scope, element, attrs) {
         scope.id = '_human-'+lodash.random(1000000,10000000);
         scope.animated = true;
+        scope.modelReady = false;
+
+        scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
 
         scope.url  = 'https://human.biodigital.com/widget/?';
         scope.url += scope.scene.scene;
@@ -110,9 +142,17 @@ angular.module('anatomyApp')
         scope.url += '&ui-nav=false';
         scope.url += '&imageDisplay=fallback';
 
-				$('iframe').on('load', function () {
-				  var iframe = $('iframe').contents();
-				});
+        scope.isShowing = function() {
+        	return scope.modelReady;
+        };
+        scope.toggleEditMode = function() {
+        	if ( !scope.isShowing() ) { return; }
+        	scope.animated = scope.animated ? false : true;
+        };
+
+				// $('iframe').on('load', function () {
+				//   var iframe = $('iframe').contents();
+				// });
 				// $(window).on('click', function() {
 				// 	console.log('click');
 				// 	scope.animated = false;
@@ -123,7 +163,6 @@ angular.module('anatomyApp')
 				// });
 				$('.cover', $(element)).on('mousedown', function() {
 					scope.animated = false;
-					$('.cover', $(element)).hide();
 				});
 
       }

@@ -1,6 +1,8 @@
-<div class="education-anatomy" ng-class="{active: isVisible()}">
-  <iframe id="{{ id }}" allowFullScreen="true"
-      ng-src="{{ url | trust }}" ng-if="url"></iframe>
+<div class="anatomy" ng-class="{active: isVisible()}" style="background-image:{{ poster }};">
+  <iframe id="{{ id }}" allowFullScreen="true" ng-src="{{ url | trust }}" ng-if="url" ng-show="isShowing()"></iframe>
   <div id="{{ id }}_curtain" class="curtain"></div>
-  <div class="cover"></div>
+  <a href="" ng-click="toggleEditMode()" class="back" ng-show="!animated">Back</a>
+  <div class="cover" ng-show="animated">
+  	<!-- <a href="" class="edit">Edit</a> -->
+  </div>
 </div><!-- .anatomy -->
