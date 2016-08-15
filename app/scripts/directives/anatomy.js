@@ -136,7 +136,7 @@ angular.module('anatomyApp')
         scope.url += '&imageDisplay=fallback';
 
         scope.isVisible = function() {
-        	return true;
+        	return !scope.scene.hidden;
         };
         scope.isReady = function() {
         	return scope.modelReady;

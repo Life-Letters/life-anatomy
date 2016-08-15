@@ -1,6 +1,6 @@
 <div class="anatomy" ng-show="isVisible()" style="background-image:{{ poster }};">
   <iframe id="{{ id }}" ng-src="{{ url | trust }}" ng-if="url" ng-show="isReady()"></iframe>
   <span us-spinner="{radius:60, width:8, length: 32}" ng-show="!isReady()"></span>
-  <a href="" ng-click="toggleMode()" class="back" ng-show="!isAutoMode()">&lt; Back</a>
+  <a href="" ng-click="toggleMode()" class="back" ng-show="!isAutoMode()">Back</a>
   <div class="cover" ng-show="isAutoMode()" ng-click="toggleMode()"></div>
 </div><!-- .anatomy -->

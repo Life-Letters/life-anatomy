@@ -7,6 +7,20 @@
   background-size: cover;
   background-position: 50%;
 }
+.anatomy.ng-hide-remove {
+  transition: 0.5s linear all;
+  opacity: 0;
+}
+.anatomy.ng-hide-remove.ng-hide-remove-active {
+  opacity: 1;
+}
+.anatomy.ng-hide-add {
+  transition: 0.5s linear all;
+  opacity: 1;
+}
+.anatomy.ng-hide-add.ng-hide-add-active {
+  opacity: 0;
+}
 .anatomy [us-spinner] {
   opacity: 0.3;
 }
@@ -18,18 +32,18 @@ iframe {
   height: 100%;
   border: none;
 }
-iframe.ng-enter {
+iframe.ng-hide-remove {
   transition: 0.5s linear all;
   opacity: 0;
 }
-iframe.ng-enter.ng-enter-active {
+iframe.ng-hide-remove.ng-hide-remove-active {
   opacity: 1;
 }
-iframe.ng-leave {
+iframe.ng-hide-add {
   transition: 0.5s linear all;
   opacity: 1;
 }
-iframe.ng-leave.ng-leave-active {
+iframe.ng-hide-add.ng-hide-add-active {
   opacity: 0;
 }
 .cover {

@@ -9,6 +9,7 @@
  */
 angular.module('anatomyApp')
   .controller('MainCtrl', function ($scope) {
+
     $scope.scene = {
 	        scene: 'be=19Ws',
 	        poster: 'http://lifeletters-education.s3.amazonaws.com/anatomy-test.png',
@@ -22,4 +23,8 @@ angular.module('anatomyApp')
 	        // 	'up':{'x':-0.2,'y':1.0,'z':0.1}
 	        // }
 	      };
+
+  	$scope.toggle = function() {
+  		$scope.scene.hidden = !$scope.scene.hidden;
+  	};
   });

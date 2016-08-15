@@ -19,7 +19,10 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <div ng-controller="MainCtrl">
-      <anatomy scene="scene"></anatomy>      
+      <div style="width:800px;height:600px;position:relative;">
+        <anatomy scene="scene"></anatomy>
+      </div>
+      <a ng-click="toggle()">Toggle</a>
     </div>
     
     <script src="https://human-api.biodigital.com/build/1.2.1/human-api-1.2.1.min.js"></script>
