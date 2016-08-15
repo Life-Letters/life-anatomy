@@ -1,5 +1,6 @@
 <div class="anatomy" ng-class="{active: isVisible()}" style="background-image:{{ poster }};">
   <iframe id="{{ id }}" allowFullScreen="true" ng-src="{{ url | trust }}" ng-if="url" ng-show="isShowing()"></iframe>
+  <span us-spinner="{radius:60, width:8, length: 32}" ng-show="!isReady()"></span>
   <div id="{{ id }}_curtain" class="curtain"></div>
   <a href="" ng-click="toggleEditMode()" class="back" ng-show="!animated">Back</a>
   <div class="cover" ng-show="animated" ng-click="toggleEditMode()">

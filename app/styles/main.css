@@ -7,6 +7,9 @@
   background-size: cover;
   background-position: 50%;
 }
+.anatomy [us-spinner] {
+  opacity: 0.3;
+}
 iframe {
   position: absolute;
   left: 0;

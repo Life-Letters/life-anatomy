@@ -139,6 +139,9 @@ angular.module('anatomyApp')
         scope.url += '&ui-nav=false';
         scope.url += '&imageDisplay=fallback';
 
+        scope.isReady = function() {
+        	return scope.modelReady;
+        };
         scope.isShowing = function() {
         	return scope.modelReady;
         };
