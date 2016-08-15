@@ -49,7 +49,7 @@ angular.module('anatomyApp')
 	      });
 
 			human.camera.on('update', function(update) {
-			  // console.log(JSON.stringify(lodash.pick(update, ['eye','look','up'])));
+			  console.log(JSON.stringify(lodash.pick(update, ['eye','look','up'])));
 			});
 
 
@@ -85,7 +85,6 @@ angular.module('anatomyApp')
 			var init = true;
 			$scope.$watch('animated', function() {
 				if (init) { init = false; return; }
-				console.log('animate change');
 
 				if ( $scope.animated ) {
 					human.camera.flyTo( $scope.scene.camera[0], function() {
@@ -104,10 +103,9 @@ angular.module('anatomyApp')
 					  }, 30);
 					});
 				} else {
-					console.log('flying to default pos');
-					human.camera.flyTo( $scope.scene.interact, function() {
-						console.log('flown to');
-					});
+					$timeout(function() {
+						human.camera.flyTo( $scope.scene.interact );
+					}, 50);
 				}
 			});
 		});
@@ -135,8 +133,7 @@ angular.module('anatomyApp')
 
         scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
 
-        scope.url  = 'https://human.biodigital.com/widget/?';
-        scope.url += scope.scene.scene;
+        scope.url  = 'https://human.biodigital.com/widget/?'+scope.scene.scene;
         scope.url += '&dk=e2300c218b9fb224951d19caab6219dc63c4ff2f';
         scope.url += '&bgstd=255,255,255,255,255,255';
         scope.url += '&ui-nav=false';
@@ -147,7 +144,7 @@ angular.module('anatomyApp')
         };
         scope.toggleEditMode = function() {
         	if ( !scope.isShowing() ) { return; }
-        	scope.animated = scope.animated ? false : true;
+        	scope.animated = !scope.animated;
         };
 
 				// $('iframe').on('load', function () {
@@ -161,9 +158,6 @@ angular.module('anatomyApp')
 				// 	console.log('blur');
 				// 	scope.animated = false;
 				// });
-				$('.cover', $(element)).on('mousedown', function() {
-					scope.animated = false;
-				});
 
       }
     };

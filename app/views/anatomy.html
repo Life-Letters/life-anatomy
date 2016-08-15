@@ -2,7 +2,7 @@
   <iframe id="{{ id }}" allowFullScreen="true" ng-src="{{ url | trust }}" ng-if="url" ng-show="isShowing()"></iframe>
   <div id="{{ id }}_curtain" class="curtain"></div>
   <a href="" ng-click="toggleEditMode()" class="back" ng-show="!animated">Back</a>
-  <div class="cover" ng-show="animated">
+  <div class="cover" ng-show="animated" ng-click="toggleEditMode()">
   	<!-- <a href="" class="edit">Edit</a> -->
   </div>
 </div><!-- .anatomy -->
