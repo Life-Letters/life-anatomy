@@ -58,39 +58,35 @@ angular.module('anatomyApp')
 
 				var loadedAt = getMillis();
 				var animationCycle = $interval( function() {
-			  	if ( !$scope.animated ) {
+			  	if ( !$scope.autoMode ) {
 			  		$interval.cancel(animationCycle);
 			  	}
 
 			  	var diff = getMillis()-loadedAt;
 			  	if ( diff < introDuration ) {
 			  		var x = easeInOut(diff/introDuration),
-			  				cam = tweenCamera($scope.scene.init, $scope.scene.camera[0], x);
+			  				cam = tweenCamera($scope.scene.camInit, $scope.scene.camA, x);
 
 			  		human.camera.jumpTo(cam, function() {});
 			  	} else {
 			  		var x = (diff-introDuration)/floatDuration,
 								y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
-			  		var cam = tweenCamera($scope.scene.camera[0], $scope.scene.camera[1], y);
-			  		human.camera.jumpTo(cam, function() {});
-				    // human.camera.orbitBy({
-				    //   yaw: 0.5,
-				    //   pitch: 0.1
-				    // });
+			  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
+			  		human.camera.jumpTo(cam);
 			  	}
 			  }, 30);
 			});
 
 			var init = true;
-			$scope.$watch('animated', function() {
+			$scope.$watch('autoMode', function() {
 				if (init) { init = false; return; }
 
-				if ( $scope.animated ) {
-					human.camera.flyTo( $scope.scene.camera[0], function() {
+				if ( $scope.autoMode ) {
+					human.camera.flyTo( $scope.scene.camA, function() {
 						var startedAt = getMillis();
 						var animationCycle = $interval( function() {
-					  	if ( !$scope.animated ) {
+					  	if ( !$scope.autoMode ) {
 					  		$interval.cancel(animationCycle);
 					  	}
 
@@ -98,13 +94,13 @@ angular.module('anatomyApp')
 				  		var x = diff/floatDuration,
 									y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
-				  		var cam = tweenCamera($scope.scene.camera[0], $scope.scene.camera[1], y);
+				  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
 				  		human.camera.jumpTo(cam);
 					  }, 30);
 					});
 				} else {
 					$timeout(function() {
-						human.camera.flyTo( $scope.scene.interact );
+						human.camera.flyTo( $scope.scene.camCenter );
 					}, 50);
 				}
 			});
@@ -128,7 +124,7 @@ angular.module('anatomyApp')
       },
       link: function postLink(scope, element, attrs) {
         scope.id = '_human-'+lodash.random(1000000,10000000);
-        scope.animated = true;
+        scope.autoMode = true;
         scope.modelReady = false;
 
         scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
@@ -139,29 +135,19 @@ angular.module('anatomyApp')
         scope.url += '&ui-nav=false';
         scope.url += '&imageDisplay=fallback';
 
+        scope.isVisible = function() {
+        	return true;
+        };
         scope.isReady = function() {
         	return scope.modelReady;
         };
-        scope.isShowing = function() {
-        	return scope.modelReady;
+        scope.toggleMode = function() {
+        	if ( !scope.isReady() ) { return; }
+        	scope.autoMode = !scope.autoMode;
         };
-        scope.toggleEditMode = function() {
-        	if ( !scope.isShowing() ) { return; }
-        	scope.animated = !scope.animated;
+        scope.isAutoMode = function() {
+        	return scope.autoMode;
         };
-
-				// $('iframe').on('load', function () {
-				//   var iframe = $('iframe').contents();
-				// });
-				// $(window).on('click', function() {
-				// 	console.log('click');
-				// 	scope.animated = false;
-				// });
-				// $(window).on('blur', function() {
-				// 	console.log('blur');
-				// 	scope.animated = false;
-				// });
-
       }
     };
   });

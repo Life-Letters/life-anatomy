@@ -10,6 +10,7 @@
  */
 angular
   .module('anatomyApp', [
+  	'ngAnimate',
   	'ngLodash',
   	'angularSpinner',
   ]);
