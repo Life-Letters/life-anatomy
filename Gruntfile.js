@@ -48,9 +48,9 @@ module.exports = function (grunt) {
         files: ['test/spec/{,*/}*.js'],
         tasks: ['newer:jshint:test', 'newer:jscs:test', 'karma']
       },
-      styles: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
-        tasks: ['newer:copy:styles', 'postcss']
+      sass: {
+        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+        tasks: ['sass:server', 'postcss:server']
       },
       gruntfile: {
         files: ['Gruntfile.js']
@@ -168,6 +168,18 @@ module.exports = function (grunt) {
         }]
       },
       server: '.tmp'
+    },
+
+    sass: {
+      options: {
+        outputStyle: 'nested',
+        includePaths: ['./bower_components'],
+      },
+      dist: {
+        files: {
+          '.tmp/styles/main.css': '<%= yeoman.app %>/styles/main.scss'
+        }
+      },
     },
 
     // Add vendor prefixed styles
@@ -400,13 +412,13 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
-        'copy:styles'
+        'sass:dist',
       ],
       test: [
-        'copy:styles'
+        'sass:dist',
       ],
       dist: [
-        'copy:styles',
+        'sass:dist',
         'imagemin',
         'svgmin'
       ]
