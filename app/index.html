@@ -20,10 +20,18 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <div ng-controller="MainCtrl">
-      <div style="width:800px;height:600px;position:relative;">
-        <anatomy scene="scene" camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
-      </div>
+      <hr />
       <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-8">
+            <div class="anatomyFrame">
+              <anatomy scene="scene" camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
+            </div>
+          </div><!-- .col-sm-8 -->
+          <div class="col-sm-4">
+            <pre>{{ camera | json }}</pre>
+          </div><!-- .col-sm-4 -->
+        </div><!-- .row -->
         <div class="row">
           <div class="col-sm-12">
             <hr />

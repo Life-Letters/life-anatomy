@@ -17,7 +17,8 @@ angular.module('anatomyApp')
 		var human = null, 
 				introDuration = 2000,
 				floatDuration = 10000,
-				locked = true;
+				ignoreScopeCameraChange = false,
+				ignoreHumanCameraChange = true;
 
 		function getMillis() {
 			return (new Date()).getTime();
@@ -47,7 +48,7 @@ angular.module('anatomyApp')
 			var animationCycle = false;
 
 			// Start a cycle between two camera positions
-			function startAutoMode() {
+			function startAnimation() {
 				if (animationCycle) { return; }
 
 				var startedAt = getMillis();
@@ -58,10 +59,10 @@ angular.module('anatomyApp')
 
 		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
 		  		human.camera.jumpTo(cam);
-		  	});
+		  	}, 30);
 			}
 
-			function stopAutoMode() {
+			function stopAnimation() {
 				if (!animationCycle) { return; }
 				$interval.cancel(animationCycle);
 				animationCycle = false;
@@ -74,24 +75,42 @@ angular.module('anatomyApp')
 	      });
 
 			human.camera.on('update', lodash.debounce(function(update) {
-				if ( $scope.autoMode || !$scope.isVisible() ) { return; }
-				locked = true;
-				$timeout(function() { locked = false; }, 500);
+				if ( ignoreHumanCameraChange ) { return; }
+
+				console.log('update');
+
+				// Avoid responding to the camera update that the next few lines will trigger
+				ignoreScopeCameraChange = true;
+				$timeout(function() { ignoreScopeCameraChange = false; }, 500);
 
 				$scope.camera = lodash.pick(update, ['eye','look','up']);
 				$scope.$apply();
-			}), 500);
+			}, 500));
+			
+
+			// Animate the camera
+			function updateCamera() {
+				if ( !$scope.modelReady || $scope.scene.hidden ) { return; }
+
+				// Have we switched to the manual mode?
+				if ( $scope.isManualMode() ) {
+					stopAnimation();
+					human.camera.flyTo( $scope.camera, function() {
+						console.log('attach');
+						ignoreHumanCameraChange = false;
+					});
+					
+				} else {
+					console.log('detach');
+					ignoreHumanCameraChange = true;
+					human.camera.flyTo( $scope.scene.camA, startAnimation );
+				}
+			}
 
 			$scope.$watch('camera', function() {
-				if ( locked || $scope.scene.hidden ) { return; }
-
-				if ( $scope.autoMode ) {
-					$scope.autoMode = false;
-				} else {
-					human.camera.flyTo($scope.camera);
-				}
+				if ( ignoreScopeCameraChange ) { return; }
+				updateCamera();
 			});
-
 
 			human.on("ready", function() {
 				$scope.modelReady = true;
@@ -99,39 +118,26 @@ angular.module('anatomyApp')
 			});
 
 			// Have we been revealed?
-			$scope.$watchGroup(['modelReady','scene.hidden'], function() {
+			$scope.$watchGroup(['modelReady', 'scene.hidden'], function() {
 				if ( !$scope.modelReady || $scope.scene.hidden ) { return; }
 
+				// Reset camera
 				human.camera.jumpTo($scope.scene.camInit);
-				$timeout(function() {
-					// TODO: slow this animation down
-					human.camera.flyTo($scope.scene.camA, startAutoMode);
-				}, 500);
+				$timeout(updateCamera, 500);
 			});
 
 			$scope.$watch('scene.hidden', function() {
-				if ( $scope.scene.hidden ) {
-					stopAutoMode();
-				}
-			});
-
-			var init = true;
-			$scope.$watch('autoMode', function() {
-				if (init) { init = false; return; }
-
-				if ( $scope.autoMode ) {
-					human.camera.flyTo( $scope.scene.camA, startAutoMode );
-				} else {
-					stopAutoMode();
-					human.camera.flyTo( lodash.isObject($scope.camera) && lodash.size($scope.camera) ? 
-							$scope.camera : 
-							$scope.scene.camCenter );
-				}
+				if ( !$scope.scene.hidden ) { return; }
+				
+				stopAnimation();
+				console.log('detach');
+				ignoreHumanCameraChange = true;
+				$scope.camera = {};
 			});
 		});
 
     $scope.$on('$destroy', function() {
-    	stopAutoMode();
+    	stopAnimation();
       if ( human ) {
         console.log('Destroying humanAPI');
         human.destroy();
@@ -169,11 +175,19 @@ angular.module('anatomyApp')
         	return scope.modelReady;
         };
         scope.toggleMode = function() {
-        	if ( !scope.isReady() ) { return; }
-        	scope.autoMode = !scope.autoMode;
+        	if ( scope.isAutoMode() ) {
+        		// Puts it into manual mode
+        		scope.camera = angular.copy(scope.scene.camCenter);
+        	} else {
+        		// Puts it into auto mode
+        		scope.camera = {};
+        	}
+        };
+        scope.isManualMode = function() {
+        	return lodash.isObject(scope.camera) && lodash.size(scope.camera);
         };
         scope.isAutoMode = function() {
-        	return scope.autoMode;
+        	return !scope.isManualMode();
         };
       }
     };
