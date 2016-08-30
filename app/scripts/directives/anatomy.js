@@ -34,8 +34,8 @@ angular.module('anatomyApp')
 		}
 		function tweenCamera(cam1, cam2, amount) {
 			return {
-				eye: tweenVec(cam1.eye, cam2.eye, amount),
-				look: tweenVec(cam1.look, cam2.look, amount),
+				position: tweenVec(cam1.position, cam2.position, amount),
+				target: tweenVec(cam1.target, cam2.target, amount),
 				up: tweenVec(cam1.up, cam2.up, amount),
 			};
 		}
@@ -53,12 +53,12 @@ angular.module('anatomyApp')
 
 				var startedAt = getMillis();
 				animationCycle = $interval(function() {
-			  	var diff = getMillis()-startedAt;
+			  	var diff = getMillis() - startedAt;
 		  		var x = diff/floatDuration,
 							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
 		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
-		  		human.camera.jumpTo(cam);
+		  		human.send('camera.set', cam);
 		  	}, 30);
 			}
 
@@ -68,22 +68,20 @@ angular.module('anatomyApp')
 				animationCycle = false;
 			}
 
-			human = new humanAPI.Human({
+			human = new HumanAPI({
 	        iframeId: $scope.id,
 	        showLog: true,
 	        humanLog: true
 	      });
 
-			human.camera.on('update', lodash.debounce(function(update) {
+			human.on('camera.updated', lodash.debounce(function(update) {
 				if ( ignoreHumanCameraChange ) { return; }
-
-				console.log('update');
 
 				// Avoid responding to the camera update that the next few lines will trigger
 				ignoreScopeCameraChange = true;
 				$timeout(function() { ignoreScopeCameraChange = false; }, 500);
 
-				$scope.camera = lodash.pick(update, ['eye','look','up']);
+				$scope.camera = lodash.pick(update, ['position','target','up']);
 				$scope.$apply();
 			}, 500));
 			
@@ -95,15 +93,13 @@ angular.module('anatomyApp')
 				// Have we switched to the manual mode?
 				if ( $scope.isManualMode() ) {
 					stopAnimation();
-					human.camera.flyTo( $scope.camera, function() {
-						console.log('attach');
+					human.send('camera.set', _.extend({}, $scope.camera, {animate: true}), function() {
 						ignoreHumanCameraChange = false;
 					});
 					
 				} else {
-					console.log('detach');
 					ignoreHumanCameraChange = true;
-					human.camera.flyTo( $scope.scene.camA, startAnimation );
+					human.send('camera.set', _.extend({}, $scope.scene.camA, {animate: true}), startAnimation );
 				}
 			}
 
@@ -112,7 +108,7 @@ angular.module('anatomyApp')
 				updateCamera();
 			});
 
-			human.on("ready", function() {
+			human.on('human.ready', function() {
 				$scope.modelReady = true;
 				$scope.$apply();
 			});
@@ -122,7 +118,7 @@ angular.module('anatomyApp')
 				if ( !$scope.modelReady || $scope.scene.hidden ) { return; }
 
 				// Reset camera
-				human.camera.jumpTo($scope.scene.camInit);
+				human.send('camera.set', $scope.scene.camInit);
 				$timeout(updateCamera, 500);
 			});
 
