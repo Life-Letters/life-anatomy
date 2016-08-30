@@ -32,7 +32,7 @@ angular.module('anatomyApp')
 
 	      };
 
-  	$scope.toggle = function() {
+  	$scope.toggleVis = function() {
   		$scope.scene.hidden = !$scope.scene.hidden;
   	};
     $scope.toggleUi = function() {
@@ -57,14 +57,11 @@ angular.module('anatomyApp')
     $scope.restoreCamB = function() {
       $scope.camera = angular.copy($scope.scene.camB);
     };
+    $scope.setCamCenter = function() {
+      $scope.scene.camCenter = angular.copy($scope.camera);
+    };
+    $scope.restoreCamCenter = function() {
+      $scope.camera = angular.copy($scope.scene.camCenter);
+    };
 
-
-  	// $scope.$on('anatomy:camera:change', function(camera) {
-  	// 	console.log(camera);
-  	// 	$scope.camera = camera;
-  	// });
-
-    $scope.$watch('camera', function() {
-      console.log(JSON.stringify($scope.camera));
-    });
   });

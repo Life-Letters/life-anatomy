@@ -1,6 +1,10 @@
 'use strict';
 
-angular.module('anatomyApp')
+angular.module('life.anatomy', [
+  	'ngAnimate',
+  	'ngLodash',
+  	'angularSpinner',
+  ])
 	.factory('humanAPI', function ($window) {
     return $window.HumanAPI ? $window.HumanAPI : {};
   })
@@ -152,11 +156,19 @@ angular.module('anatomyApp')
       },
       link: function postLink(scope, element, attrs) {
         scope.id = lodash.uniqueId('_human-');
-        scope.autoMode = true;
+
         scope.modelReady = false;
         scope.camera = scope.camera || {};
 
         scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
+
+        // Support legacy projects
+        if ( scope.scene.camera ) {
+        	scope.scene.camInit = angular.copy(scope.scene.camera);
+					scope.scene.camA = angular.copy(scope.scene.camera);
+					scope.scene.camB = angular.copy(scope.scene.camera);
+					scope.scene.camCenter = angular.copy(scope.scene.camera);
+        }
 
         scope.url  = 'https://human.biodigital.com/widget/?'+scope.scene.scene;
         scope.url += '&dk=e2300c218b9fb224951d19caab6219dc63c4ff2f';

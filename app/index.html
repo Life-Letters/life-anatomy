@@ -36,11 +36,11 @@
           <div class="col-sm-12">
             <hr />
             <ul>
-              <li><a href="#" ng-click="toggle()">Toggle visibility</a></li>
-              <li><a href="#" ng-click="toggleUi()">Toggle UI</a></li>
-              <li>Init: <a href="#" ng-click="setCamInit()">set</a>/<a href="#" ng-click="restoreCamInit()">restore</a></li>
-              <li>A: <a href="#" ng-click="setCamA()">set</a>/<a href="#" ng-click="restoreCamA()">restore</a></li>
-              <li>B: <a href="#" ng-click="setCamB()">set</a>/<a href="#" ng-click="restoreCamB()">restore</a></li>
+              <li>Toggle: <a href="#" ng-click="toggleVis()">visibility</a> / <a href="#" ng-click="toggleUi()">UI</a></li>
+              <li>Init: <a href="#" ng-click="setCamInit()">set</a> / <a href="#" ng-click="restoreCamInit()">restore</a></li>
+              <li>A: <a href="#" ng-click="setCamA()">set</a> / <a href="#" ng-click="restoreCamA()">restore</a></li>
+              <li>B: <a href="#" ng-click="setCamB()">set</a> / <a href="#" ng-click="restoreCamB()">restore</a></li>
+              <li>Center: <a href="#" ng-click="setCamCenter()">set</a> / <a href="#" ng-click="restoreCamCenter()">restore</a></li>
             </ul>
             <hr>
           </div><!-- .col-sm-12 -->
@@ -61,7 +61,7 @@
     </div>
     
     <script src="https://developer.biodigital.com/builds/api/2/human-api.min.js"></script>
-    
+
     <!-- build:js(.) scripts/vendor.js -->
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -74,8 +74,10 @@
     <!-- endbower -->
     <!-- endbuild -->
 
+    <script>
+      angular.module('anatomyApp', ['life.anatomy']);
+    </script>
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
-    <script src="scripts/app.js"></script>
     <script src="scripts/controllers/main.js"></script>
     <script src="scripts/directives/anatomy.js"></script>
     <!-- endbuild -->
