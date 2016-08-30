@@ -5,6 +5,7 @@
     <title></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
@@ -20,9 +21,34 @@
     <![endif]-->
     <div ng-controller="MainCtrl">
       <div style="width:800px;height:600px;position:relative;">
-        <anatomy scene="scene"></anatomy>
+        <anatomy scene="scene" camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
       </div>
-      <a ng-click="toggle()">Toggle</a>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <ul>
+              <li><a href="#" ng-click="toggle()">Toggle visibility</a></li>
+              <li><a href="#" ng-click="toggleUi()">Toggle UI</a></li>
+              <li>Init: <a href="#" ng-click="setCamInit()">set</a>/<a href="#" ng-click="restoreCamInit()">restore</a></li>
+              <li>A: <a href="#" ng-click="setCamA()">set</a>/<a href="#" ng-click="restoreCamA()">restore</a></li>
+              <li>B: <a href="#" ng-click="setCamB()">set</a>/<a href="#" ng-click="restoreCamB()">restore</a></li>
+            </ul>
+            <hr>
+          </div><!-- .col-sm-12 -->
+          <div class="col-sm-4">
+            <pre>{{ scene.camInit }}</pre>
+            <pre>{{ scene.camInit | json }}</pre>
+          </div><!-- .col-sm-4 -->
+          <div class="col-sm-4">
+            <pre>{{ scene.camA }}</pre>
+            <pre>{{ scene.camA | json }}</pre>
+          </div><!-- .col-sm-4 -->
+          <div class="col-sm-4">
+            <pre>{{ scene.camB }}</pre>
+            <pre>{{ scene.camB | json }}</pre>
+          </div><!-- .col-sm-4 -->
+        </div><!-- .row -->
+      </div><!-- .container-fluid -->
     </div>
     
     <script src="https://human-api.biodigital.com/build/1.2.1/human-api-1.2.1.min.js"></script>

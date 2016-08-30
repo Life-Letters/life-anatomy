@@ -16,7 +16,8 @@ angular.module('anatomyApp')
 
 		var human = null, 
 				introDuration = 2000,
-				floatDuration = 10000; 
+				floatDuration = 10000,
+				locked = true;
 
 		function getMillis() {
 			return (new Date()).getTime();
@@ -48,8 +49,18 @@ angular.module('anatomyApp')
 	        humanLog: true
 	      });
 
-			human.camera.on('update', function(update) {
-			  console.log(JSON.stringify(lodash.pick(update, ['eye','look','up'])));
+			human.camera.on('update', lodash.debounce(function(update) {
+				if ( $scope.autoMode || !$scope.isVisible() ) { return; }
+				locked = true;
+				$timeout(function() { locked = false; }, 500);
+
+				$scope.camera = lodash.pick(update, ['eye','look','up']);
+				$scope.$apply();
+			}), 500);
+
+			$scope.$watch('camera', function() {
+				if ( locked || $scope.autoMode || !$scope.isVisible() ) { return; }
+				human.camera.flyTo($scope.camera);
 			});
 
 
@@ -67,7 +78,7 @@ angular.module('anatomyApp')
 			  		var x = easeInOut(diff/introDuration),
 			  				cam = tweenCamera($scope.scene.camInit, $scope.scene.camA, x);
 
-			  		human.camera.jumpTo(cam, function() {});
+			  		human.camera.jumpTo(cam);
 			  	} else {
 			  		var x = (diff-introDuration)/floatDuration,
 								y = (Math.cos(Math.PI*(2*x+1))+1)/2;
@@ -121,11 +132,13 @@ angular.module('anatomyApp')
       controller: 'anatomyDirectiveCtrl',
       scope: {
       	scene: '=',
+      	camera: '=',
       },
       link: function postLink(scope, element, attrs) {
-        scope.id = '_human-'+lodash.random(1000000,10000000);
+        scope.id = lodash.uniqueId('_human-');
         scope.autoMode = true;
         scope.modelReady = false;
+        scope.camera = scope.camera || {};
 
         scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
 

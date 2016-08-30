@@ -10,6 +10,9 @@
 angular.module('anatomyApp')
   .controller('MainCtrl', function ($scope) {
 
+  	$scope.camera = {};
+    $scope.muteUi = true;
+
     $scope.scene = {
 	        scene: 'be=19Ws',
 	        poster: 'http://lifeletters-education.s3.amazonaws.com/anatomy-test.png',
@@ -27,4 +30,36 @@ angular.module('anatomyApp')
   	$scope.toggle = function() {
   		$scope.scene.hidden = !$scope.scene.hidden;
   	};
+    $scope.toggleUi = function() {
+      $scope.muteUi = !$scope.muteUi;
+    };
+
+    $scope.setCamInit = function() {
+      $scope.scene.camInit = angular.copy($scope.camera);
+    };
+    $scope.restoreCamInit = function() {
+      $scope.camera = angular.copy($scope.scene.camInit);
+    };
+  	$scope.setCamA = function() {
+  		$scope.scene.camA = angular.copy($scope.camera);
+  	};
+    $scope.restoreCamA = function() {
+      $scope.camera = angular.copy($scope.scene.camA);
+    };
+  	$scope.setCamB = function() {
+  		$scope.scene.camB = angular.copy($scope.camera);
+  	};
+    $scope.restoreCamB = function() {
+      $scope.camera = angular.copy($scope.scene.camB);
+    };
+
+
+  	// $scope.$on('anatomy:camera:change', function(camera) {
+  	// 	console.log(camera);
+  	// 	$scope.camera = camera;
+  	// });
+
+    $scope.$watch('camera', function() {
+      console.log(JSON.stringify($scope.camera));
+    });
   });
