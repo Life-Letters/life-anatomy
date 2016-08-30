@@ -5,21 +5,20 @@ angular.module('life.anatomy', [
   	'ngLodash',
   	'angularSpinner',
   ])
-	.factory('humanAPI', function ($window) {
+	.factory('HumanAPI', function ($window) {
     return $window.HumanAPI ? $window.HumanAPI : {};
   })
-  .factory('$', function ($window) {
-    return $window.$ ? $window.$ : {};
-  })
+  // .factory('$', function ($window) {
+  //   return $window.$ ? $window.$ : {};
+  // })
   .filter('trust', function ($sce) {
     return function (input) {
       return $sce.trustAsResourceUrl(input);
     };
   })
-	.controller('anatomyDirectiveCtrl', function ($scope, $rootScope, $timeout, $interval, humanAPI, lodash) {
+	.controller('anatomyDirectiveCtrl', function ($scope, $rootScope, $timeout, $interval, HumanAPI, lodash) {
 
-		var human = null, 
-				introDuration = 2000,
+		var human = null,
 				floatDuration = 10000,
 				ignoreScopeCameraChange = false,
 				ignoreHumanCameraChange = true;
@@ -43,9 +42,9 @@ angular.module('life.anatomy', [
 				up: tweenVec(cam1.up, cam2.up, amount),
 			};
 		}
-		function easeInOut(x) {
-			return 3*x*x - 2*x*x*x;
-		}
+		// function easeInOut(x) {
+		// 	return 3*x*x - 2*x*x*x;
+		// }
 
 		$timeout(function() {
 
@@ -97,13 +96,13 @@ angular.module('life.anatomy', [
 				// Have we switched to the manual mode?
 				if ( $scope.isManualMode() ) {
 					stopAnimation();
-					human.send('camera.set', _.extend({}, $scope.camera, {animate: true}), function() {
+					human.send('camera.set', lodash.extend({}, $scope.camera, {animate: true}), function() {
 						ignoreHumanCameraChange = false;
 					});
 					
 				} else {
 					ignoreHumanCameraChange = true;
-					human.send('camera.set', _.extend({}, $scope.scene.camA, {animate: true}), startAnimation );
+					human.send('camera.set', lodash.extend({}, $scope.scene.camA, {animate: true}), startAnimation );
 				}
 			}
 
@@ -134,17 +133,18 @@ angular.module('life.anatomy', [
 				ignoreHumanCameraChange = true;
 				$scope.camera = {};
 			});
-		});
 
-    $scope.$on('$destroy', function() {
-    	stopAnimation();
-      if ( human ) {
-        console.log('Destroying humanAPI');
-        human.destroy();
-      }
-    });
+	    $scope.$on('$destroy', function() {
+	    	stopAnimation();
+
+	      if ( human ) {
+	        console.log('Destroying HumanAPI');
+	        human.destroy();
+	      }
+	    });
+		});
 	})
-  .directive('anatomy', function (lodash, $) {
+  .directive('anatomy', function (lodash) {
     return {
       // templateUrl: 'views/anatomy.html',
       template: 
@@ -163,7 +163,7 @@ angular.module('life.anatomy', [
       	scene: '=',
       	camera: '=',
       },
-      link: function postLink(scope, element, attrs) {
+      link: function postLink(scope) {
         scope.id = lodash.uniqueId('_human-');
 
         scope.modelReady = false;
