@@ -43,6 +43,30 @@ angular.module('anatomyApp')
 		}
 
 		$timeout(function() {
+
+			var animationCycle = false;
+
+			// Start a cycle between two camera positions
+			function startAutoMode() {
+				if (animationCycle) { return; }
+
+				var startedAt = getMillis();
+				animationCycle = $interval(function() {
+			  	var diff = getMillis()-startedAt;
+		  		var x = diff/floatDuration,
+							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
+
+		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
+		  		human.camera.jumpTo(cam);
+		  	});
+			}
+
+			function stopAutoMode() {
+				if (!animationCycle) { return; }
+				$interval.cancel(animationCycle);
+				animationCycle = false;
+			}
+
 			human = new humanAPI.Human({
 	        iframeId: $scope.id,
 	        showLog: true,
@@ -59,34 +83,36 @@ angular.module('anatomyApp')
 			}), 500);
 
 			$scope.$watch('camera', function() {
-				if ( locked || $scope.autoMode || !$scope.isVisible() ) { return; }
-				human.camera.flyTo($scope.camera);
+				if ( locked || $scope.scene.hidden ) { return; }
+
+				if ( $scope.autoMode ) {
+					$scope.autoMode = false;
+				} else {
+					human.camera.flyTo($scope.camera);
+				}
 			});
 
 
 			human.on("ready", function() {
 				$scope.modelReady = true;
+				$scope.$apply();
+			});
 
-				var loadedAt = getMillis();
-				var animationCycle = $interval( function() {
-			  	if ( !$scope.autoMode ) {
-			  		$interval.cancel(animationCycle);
-			  	}
+			// Have we been revealed?
+			$scope.$watchGroup(['modelReady','scene.hidden'], function() {
+				if ( !$scope.modelReady || $scope.scene.hidden ) { return; }
 
-			  	var diff = getMillis()-loadedAt;
-			  	if ( diff < introDuration ) {
-			  		var x = easeInOut(diff/introDuration),
-			  				cam = tweenCamera($scope.scene.camInit, $scope.scene.camA, x);
+				human.camera.jumpTo($scope.scene.camInit);
+				$timeout(function() {
+					// TODO: slow this animation down
+					human.camera.flyTo($scope.scene.camA, startAutoMode);
+				}, 500);
+			});
 
-			  		human.camera.jumpTo(cam);
-			  	} else {
-			  		var x = (diff-introDuration)/floatDuration,
-								y = (Math.cos(Math.PI*(2*x+1))+1)/2;
-
-			  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
-			  		human.camera.jumpTo(cam);
-			  	}
-			  }, 30);
+			$scope.$watch('scene.hidden', function() {
+				if ( $scope.scene.hidden ) {
+					stopAutoMode();
+				}
 			});
 
 			var init = true;
@@ -94,30 +120,18 @@ angular.module('anatomyApp')
 				if (init) { init = false; return; }
 
 				if ( $scope.autoMode ) {
-					human.camera.flyTo( $scope.scene.camA, function() {
-						var startedAt = getMillis();
-						var animationCycle = $interval( function() {
-					  	if ( !$scope.autoMode ) {
-					  		$interval.cancel(animationCycle);
-					  	}
-
-					  	var diff = getMillis()-startedAt;
-				  		var x = diff/floatDuration,
-									y = (Math.cos(Math.PI*(2*x+1))+1)/2;
-
-				  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
-				  		human.camera.jumpTo(cam);
-					  }, 30);
-					});
+					human.camera.flyTo( $scope.scene.camA, startAutoMode );
 				} else {
-					$timeout(function() {
-						human.camera.flyTo( $scope.scene.camCenter );
-					}, 50);
+					stopAutoMode();
+					human.camera.flyTo( lodash.isObject($scope.camera) && lodash.size($scope.camera) ? 
+							$scope.camera : 
+							$scope.scene.camCenter );
 				}
 			});
 		});
 
     $scope.$on('$destroy', function() {
+    	stopAutoMode();
       if ( human ) {
         console.log('Destroying humanAPI');
         human.destroy();

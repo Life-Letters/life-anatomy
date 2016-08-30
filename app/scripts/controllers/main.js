@@ -11,7 +11,7 @@ angular.module('anatomyApp')
   .controller('MainCtrl', function ($scope) {
 
   	$scope.camera = {};
-    $scope.muteUi = true;
+    $scope.muteUi = false;
 
     $scope.scene = {
 	        scene: 'be=19Ws',

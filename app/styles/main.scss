@@ -1,3 +1,5 @@
+@import "include";
+
 a {
   text-decoration: none;
 }
@@ -26,93 +28,3 @@ pre {
   border: solid 1px #999;
 }
 
-.anatomy {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: 50%;
-
-  &.ng-hide-remove {
-    transition: 0.5s linear all;
-    opacity: 0;
-  }
-  &.ng-hide-remove.ng-hide-remove-active {
-    opacity: 1;
-  }
-  &.ng-hide-add {
-    transition: 0.5s linear all;
-    opacity: 1;
-  }
-  &.ng-hide-add.ng-hide-add-active {
-    opacity: 0;
-  }
-  [us-spinner] {
-    opacity: 0.3;
-  }
-
-  iframe {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-    
-    &.ng-hide-remove {
-      transition: 0.5s linear all;
-      opacity: 0;
-    }
-    &.ng-hide-remove.ng-hide-remove-active {
-      opacity: 1;
-    }
-    &.ng-hide-add {
-      transition: 0.5s linear all;
-      opacity: 1;
-    }
-    &.ng-hide-add.ng-hide-add-active {
-      opacity: 0;
-    }
-  }
-  .cover {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .back,
-  .edit {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    border: 1px solid black;
-    text-transform: uppercase;
-    text-align: center;
-    font-family: 'Helvetica';
-    font-weight: 300;
-    text-decoration: none;
-    line-height: 100px;
-    vertical-align: middle;
-    font-size: 14pt;
-  }
-  .back {
-    left: 3%;
-    top: 50%;
-    margin-top: -50px;
-  }
-  .edit {
-    left: 75%;
-    top: 50%;
-    margin-top: -100px;
-    margin-left: -100px;
-    opacity: 0.5;
-    width: 200px;
-    height: 200px;
-    font-size: 18pt;
-    line-height: 200px;
-  }
-}
