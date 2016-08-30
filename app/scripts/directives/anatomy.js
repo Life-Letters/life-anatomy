@@ -146,7 +146,16 @@ angular.module('life.anatomy', [
 	})
   .directive('anatomy', function (lodash, $) {
     return {
-      templateUrl: 'views/anatomy.html',
+      // templateUrl: 'views/anatomy.html',
+      template: 
+					'<div class="anatomy" ng-show="isVisible()" style="background-image:{{ poster }};">'+
+					  '<span us-spinner="{radius:60, width:8, length: 32}" ng-show="!isReady()"></span>'+
+					  '<span ng-show="isReady()">'+
+					  	'<iframe id="{{ id }}" ng-src="{{ url | trust }}" ng-if="url"></iframe>'+
+						  '<a href="javascript:void(0)" ng-click="toggleMode()" class="back" ng-show="!isAutoMode()"><i class="fa fa-angle-left"></i> Back</a>'+
+						  '<div class="cover" ng-show="isAutoMode()" ng-click="toggleMode()"></div>'+
+						'</span>'+
+					'</div>',
       restrict: 'E',
       replace: true,
       controller: 'anatomyDirectiveCtrl',

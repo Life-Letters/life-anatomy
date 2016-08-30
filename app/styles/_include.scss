@@ -61,7 +61,7 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    border: 1px solid black;
+    border: 1px solid rgba(#666,0.3);
     text-transform: uppercase;
     text-align: center;
     font-family: 'Helvetica';
@@ -70,6 +70,7 @@
     line-height: 100px;
     vertical-align: middle;
     font-size: 14pt;
+    color: rgba(#666,0.3);
   }
   .back {
     left: 3%;

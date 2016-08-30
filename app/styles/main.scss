@@ -1,8 +1,15 @@
+$fa-font-path: "/bower_components/font-awesome/fonts";
+
+// bower:scss
+@import "font-awesome/scss/font-awesome.scss";
+// endbower
+
 @import "include";
 
 a {
   text-decoration: none;
 }
+
 ul {
   list-style: none;
   padding: 0;
