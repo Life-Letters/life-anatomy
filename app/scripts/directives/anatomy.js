@@ -152,15 +152,17 @@ angular.module('life.anatomy', [
 
 	    $scope.$on('$destroy', function() {
 	    	stopAnimation();
-
-	      if ( human ) {
-	        console.log('Destroying HumanAPI');
-	        human.destroy();
-	      }
+				ignoreHumanCameraChange = true;
+				
 	      if (sound) { 
 					sound.stop();
 					sound.destroy();
 				}
+
+	      // if ( human ) {
+	      //   console.log('Destroying HumanAPI');
+	      //   human.destroy();
+	      // }
 	    });
 		});
 	})
