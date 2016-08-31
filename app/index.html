@@ -44,19 +44,14 @@
               <li>Center: <a href="#" ng-click="setCamCenter()">set</a> / <a href="#" ng-click="restoreCamCenter()">restore</a></li>
             </ul>
             <hr>
+            <h3>Scene:</h3>
           </div><!-- .col-sm-12 -->
-          <div class="col-sm-4">
-            <pre>{{ scene.camInit }}</pre>
-            <pre>{{ scene.camInit | json }}</pre>
-          </div><!-- .col-sm-4 -->
-          <div class="col-sm-4">
-            <pre>{{ scene.camA }}</pre>
-            <pre>{{ scene.camA | json }}</pre>
-          </div><!-- .col-sm-4 -->
-          <div class="col-sm-4">
-            <pre>{{ scene.camB }}</pre>
-            <pre>{{ scene.camB | json }}</pre>
-          </div><!-- .col-sm-4 -->
+          <div class="col-sm-6">
+            <pre>{{ scene }}</pre>
+          </div>
+          <div class="col-sm-6">
+            <pre>{{ scene | json }}</pre>
+          </div><!-- .col-sm-6 -->
         </div><!-- .row -->
       </div><!-- .container-fluid -->
     </div>
