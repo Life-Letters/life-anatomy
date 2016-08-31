@@ -114,14 +114,12 @@ angular.module('life.anatomy', [
 			});
 
 			human.on('human.ready', function() {
-				$scope.modelReady = true;
-				$scope.$apply();
-
 				if ( $scope.scene.sound ) {
 					sound = ngAudio.load($scope.scene.sound);
 					sound.loop = true;
-					sound.play();
 				}
+				$scope.modelReady = true;
+				$scope.$apply();
 			});
 
 			// Have we been revealed?
@@ -153,7 +151,7 @@ angular.module('life.anatomy', [
 	    $scope.$on('$destroy', function() {
 	    	stopAnimation();
 				ignoreHumanCameraChange = true;
-				
+
 	      if (sound) { 
 					sound.stop();
 					sound.destroy();
