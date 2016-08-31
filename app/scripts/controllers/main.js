@@ -34,6 +34,7 @@ angular.module('anatomyApp')
     $scope.scene = {
           scene: 'be=19Ws',
           poster: 'http://lifeletters-education.s3.amazonaws.com/anatomy-test.png',
+          sound: 'http://lifeletters-education.s3.amazonaws.com/heartbeat-normal.wav',
           camInit: {
             position:{x:14.202760578233727,y:-59.621763245938496, z:-2.9583409841417865},
             target:{x:7.569922821776217,y:-67.69964756381691, z:3.7228197319024927},

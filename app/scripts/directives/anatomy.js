@@ -4,6 +4,7 @@ angular.module('life.anatomy', [
   	'ngAnimate',
   	'ngLodash',
   	'angularSpinner',
+  	'ngAudio',
   ])
 	.factory('HumanAPI', function ($window) {
     return $window.HumanAPI ? $window.HumanAPI : {};
@@ -16,12 +17,13 @@ angular.module('life.anatomy', [
       return $sce.trustAsResourceUrl(input);
     };
   })
-	.controller('anatomyDirectiveCtrl', function ($scope, $rootScope, $timeout, $interval, HumanAPI, lodash) {
+	.controller('anatomyDirectiveCtrl', function ($scope, $rootScope, $timeout, $interval, HumanAPI, lodash, ngAudio) {
 
 		var human = null,
 				floatDuration = 10000,
 				ignoreScopeCameraChange = false,
-				ignoreHumanCameraChange = true;
+				ignoreHumanCameraChange = true,
+				sound = false;
 
 		function getMillis() {
 			return (new Date()).getTime();
@@ -114,6 +116,12 @@ angular.module('life.anatomy', [
 			human.on('human.ready', function() {
 				$scope.modelReady = true;
 				$scope.$apply();
+
+				if ( $scope.scene.sound ) {
+					sound = ngAudio.load($scope.scene.sound);
+					sound.loop = true;
+					sound.play();
+				}
 			});
 
 			// Have we been revealed?
@@ -122,15 +130,23 @@ angular.module('life.anatomy', [
 
 				// Reset camera
 				human.send('camera.set', $scope.scene.camInit);
-				$timeout(updateCamera, 500);
+				$timeout(function() {
+					// Restart sound
+					if (sound) { 
+						sound.play();
+					}
+					updateCamera()
+				}, 500);
 			});
 
 			$scope.$watch('scene.hidden', function() {
 				if ( !$scope.scene.hidden ) { return; }
 				
 				stopAnimation();
-				console.log('detach');
 				ignoreHumanCameraChange = true;
+				if (sound) { 
+					sound.pause();
+				}
 				$scope.camera = {};
 			});
 
@@ -141,6 +157,10 @@ angular.module('life.anatomy', [
 	        console.log('Destroying HumanAPI');
 	        human.destroy();
 	      }
+	      if (sound) { 
+					sound.stop();
+					sound.destroy();
+				}
 	    });
 		});
 	})
