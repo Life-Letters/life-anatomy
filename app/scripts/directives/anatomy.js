@@ -156,11 +156,12 @@ angular.module('life.anatomy', [
 					sound.stop();
 					sound.destroy();
 				}
-
-	      // if ( human ) {
-	      //   console.log('Destroying HumanAPI');
-	      //   human.destroy();
-	      // }
+	      if ( human ) {
+	        if ( !lodash.isUndefined(human._rpc) && !lodash.isFunction(human._rpc) ) {
+	        	console.log('destroying HumanAPI');
+	        	human._rpc.destroy();
+	        }
+	      }
 	    });
 		});
 	})
