@@ -25,10 +25,14 @@
         <div class="row">
           <div class="col-sm-8">
             <div class="anatomyFrame">
-              <anatomy scene="scene" camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
+              <anatomy 
+                  ng-if="scene.scene.length"
+                  scene="scene" 
+                  camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
             </div>
           </div><!-- .col-sm-8 -->
           <div class="col-sm-4">
+            <input type="text" class="form-control" ng-model="scene.scene" placeholder="scene" />
             <pre>{{ camera | json }}</pre>
             <!-- <pre>{{ scene | json }}</pre> -->
           </div><!-- .col-sm-4 -->
@@ -68,14 +72,73 @@
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-lazy-img/release/angular-lazy-img.js"></script>
     <script src="bower_components/angular-audio/app/angular.audio.js"></script>
+    <script src="bower_components/angular-mocks/angular-mocks.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
     <script>
-      angular.module('anatomyApp', ['life.anatomy']);
+      angular.module('anatomyApp', [
+        'ngCookies',
+        'life.anatomy',
+      ]).controller('MainCtrl', function ($scope, $cookies, lodash) {
+
+        // Current camera position (null when not in an interactive mode)
+        $scope.camera = {};
+
+        $scope.muteUi = false;
+
+        console.log($cookies.getObject('_scene'));
+        $scope.scene = $cookies.getObject('_scene') || {
+              scene: '',
+              poster: '',
+              sound: '',
+              camInit: null,
+              camA: null,
+              camB: null,
+              camCenter: null,
+            };
+
+        $scope.$watch('scene', lodash.debounce(function() {
+          console.log($scope.scene);
+          $cookies.putObject('_scene', $scope.scene);
+        }, 500), true);
+
+        $scope.toggleVis = function() {
+          $scope.scene.hidden = !$scope.scene.hidden;
+        };
+        $scope.toggleUi = function() {
+          $scope.muteUi = !$scope.muteUi;
+        };
+
+        $scope.setCamInit = function() {
+          $scope.scene.camInit = angular.copy($scope.camera);
+        };
+        $scope.restoreCamInit = function() {
+          $scope.camera = angular.copy($scope.scene.camInit);
+        };
+        $scope.setCamA = function() {
+          $scope.scene.camA = angular.copy($scope.camera);
+        };
+        $scope.restoreCamA = function() {
+          $scope.camera = angular.copy($scope.scene.camA);
+        };
+        $scope.setCamB = function() {
+          $scope.scene.camB = angular.copy($scope.camera);
+        };
+        $scope.restoreCamB = function() {
+          $scope.camera = angular.copy($scope.scene.camB);
+        };
+        $scope.setCamCenter = function() {
+          $scope.scene.camCenter = angular.copy($scope.camera);
+        };
+        $scope.restoreCamCenter = function() {
+          $scope.camera = angular.copy($scope.scene.camCenter);
+        };
+      });
     </script>
+
     <!-- build:js({.tmp,app}) scripts/scripts.js -->
-    <script src="scripts/controllers/main.js"></script>
     <script src="scripts/directives/anatomy.js"></script>
     <!-- endbuild -->
   </body>

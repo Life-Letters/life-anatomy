@@ -29,6 +29,7 @@ module.exports = function(config) {
       'bower_components/angular-lazy-img/release/angular-lazy-img.js',
       'bower_components/angular-audio/app/angular.audio.js',
       'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/angular-cookies/angular-cookies.js',
       // endbower
       'app/scripts/**/*.js',
       'test/mock/**/*.js',
