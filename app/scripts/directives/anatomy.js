@@ -103,6 +103,7 @@ angular.module('life.anatomy', [
 				// Have we switched to the manual mode?
 				if ( $scope.isManualMode() ) {
 					stopAnimation();
+					console.log('setting', $scope.camera);
 					human.send('camera.set', lodash.extend({animate: true}, $scope.camera), function() {
 						ignoreHumanCameraChange = false;
 					});

@@ -30,11 +30,14 @@ pre {
   }
 }
 
-.anatomy {
-  margin: 0 5px;
-  border: solid 1px #999;
+.anatomyFrame {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  margin: auto;
+  border: 2px solid black;
 }
 
-.anatomyFrame {
-  height: 500px;
+label {
+  margin-left: 15px;
 }

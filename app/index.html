@@ -20,51 +20,46 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <div ng-controller="MainCtrl">
-      <hr />
+      <div class="anatomyFrame">
+        <anatomy 
+            scene="scene" 
+            camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
+      </div>
       <div class="container-fluid">
         <div class="row">
-          <div class="col-sm-8">
-            <div class="anatomyFrame">
-              <anatomy 
-                  scene="scene" 
-                  camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
-            </div>
-          </div><!-- .col-sm-8 -->
           <div class="col-sm-4">
             <h4>Scene</h4>
-            <input type="text" class="form-control" ng-model="scene.scene" placeholder="scene" />
-            <textarea ng-model="cameraStr" class="form-control" placholder="Default camera..."></textarea>
-            <hr />
-            <button class="btn btn-info" ng-click="toggleUi()">UI: <span ng-if="muteUi">off</span><span ng-if="!muteUi">on</span></button>
-            <button class="btn btn-info" ng-click="toggleVisibility()">Visibility: <span ng-if="scene.hidden">off</span><span ng-if="!scene.hidden">on</span></button>
-            <hr />
+            <textarea ng-model="sceneStr" class="form-control" placeholder=""></textarea>
+            <p><small>Copy and paste your scene object into here. The page will automatically refresh afterwards.</small></p>
+            <button class="btn btn-danger" ng-click="clear()">Reset</button>
+          </div><!-- .col-sm-4 -->
+          <div class="col-sm-4">
             <h4>Positions</h4>
-            <button type="button" class="btn btn-default" ng-click="setCamA()">Set A</button>
-            <button type="button" class="btn btn-default" ng-click="setCamB()">Set B</button>
-            <button type="button" class="btn btn-default" ng-click="setCamCenter()">Set centre</button>
-            <br />
-            <button type="button" class="btn btn-default" ng-click="restoreCamA()">Restore A</button>
-            <button type="button" class="btn btn-default" ng-click="restoreCamB()">Restore B</button>
-            <button type="button" class="btn btn-default" ng-click="restoreCamCenter()">Restore centre</button>
-            <hr >
-            <h4>Synced camera</h4>
+            <label>Set:</label>
+            <button type="button" class="btn btn-default" ng-click="setCamA()">A</button>
+            <button type="button" class="btn btn-default" ng-click="setCamB()">B</button>
+            <button type="button" class="btn btn-default" ng-click="setCamCenter()">Centre</button>
+            <label>Move to:</label>
+            <button type="button" class="btn btn-default" ng-click="restoreCamA()">A</button>
+            <button type="button" class="btn btn-default" ng-click="restoreCamB()">B</button>
+            <button type="button" class="btn btn-default" ng-click="restoreCamCenter()">Centre</button>
+
+            <h4>Options</h4>
+            <label>UI:</label>
+            <button class="btn btn-warning" ng-click="toggleUi()" ng-if="muteUi">Off</button>
+            <button class="btn btn-success" ng-click="toggleUi()" ng-if="!muteUi">On</button>
+            <label for="">Visibility:</label>
+            <button class="btn btn-warning" ng-click="toggleVisibility()" ng-if="scene.hidden">Off</button>
+            <button class="btn btn-success" ng-click="toggleVisibility()" ng-if="!scene.hidden">On</button>
+          </div><!-- .col-sm-4 -->
+          <div class="col-sm-4">
+            <h4>Camera</h4>
             <pre>{{ camera | json }}</pre>
-            <hr >
-            <button class="btn btn-danger" ng-click="clear()">Clear</button>
+            <!-- <pre>{{ scene }}</pre> -->
+            <h4>Scene</h4>
+            <pre>{{ scenePruned | json }}</pre>
             <!-- <pre>{{ scene | json }}</pre> -->
           </div><!-- .col-sm-4 -->
-        </div><!-- .row -->
-        <div class="row">
-          <div class="col-sm-12">
-            <hr />
-            <h3>Scene:</h3>
-          </div><!-- .col-sm-12 -->
-          <div class="col-sm-6">
-            <pre>{{ scene }}</pre>
-          </div>
-          <div class="col-sm-6">
-            <pre>{{ scene | json }}</pre>
-          </div><!-- .col-sm-6 -->
         </div><!-- .row -->
       </div><!-- .container-fluid -->
     </div>
@@ -92,13 +87,7 @@
         'life.anatomy',
       ]).controller('MainCtrl', function ($scope, $cookies, lodash, $window) {
 
-        // Current camera position (null when not in an interactive mode)
-        $scope.camera = {};
-        $scope.cameraStr = '';
-        $scope.sceneCopy = {};
-
-        $scope.muteUi = false;
-        $scope.scene = $cookies.getObject('_scene') || {
+        var defaultScene = {
               scene: '',
               poster: '',
               camA: null,
@@ -106,31 +95,43 @@
               camCenter: null,
             };
 
-        $scope.$watch('scene', lodash.debounce(function() {
-          $cookies.putObject('_scene', $scope.scene);
-          $scope.scene.poster = 'images/'+$scope.scene.scene+'.jpg';
-        }, 500), true);
+        // Current camera position (null when not in an interactive mode)
+        $scope.camera = {};
+        $scope.sceneStr = '';
+        $scope.scenePruned = {};
 
-        $scope.$watch('cameraStr', function() {
-          if ( $scope.cameraStr.length ) {
-            var camera = JSON.parse($scope.cameraStr);
-            $scope.scene.camA = angular.copy(camera);
-            $scope.scene.camB = angular.copy(camera);
-            $scope.scene.camCenter = angular.copy(camera);
-          }
+        $scope.muteUi = false;
+        $scope.scene = $cookies.getObject('_scene') || defaultScene;
+
+        function saveScene() {
+          $scope.scene.poster = 'assets/anatomy/'+$scope.scene.scene+'.jpg';
+          $cookies.putObject('_scene', $scope.scene);
+
+          $scope.scenePruned = lodash.pick($scope.scene, lodash.keys(defaultScene));
+          $scope.scenePruned.poster = '%CONTENT_URL%/'+$scope.scene.poster;
+        }
+
+        $scope.$watch('scene', saveScene, true);
+
+        $scope.$watch('sceneStr', function() {
+          if ( !$scope.sceneStr.length ) { return; }
+          $scope.scene = lodash.extend({}, defaultScene, JSON.parse($scope.sceneStr));
+          saveScene();
+          $window.location.reload();
         });
 
-        $scope.isReady = function() {
-          return $scope.scene.scene && (
-              lodash.isObject($scope.scene.camera) || (
-                lodash.isObject($scope.scene.camA) &&
-                lodash.isObject($scope.scene.camB) &&
-                lodash.isObject($scope.scene.camCenter)));
-        }
         $scope.clear = function() {
           $cookies.remove('_scene');
           $window.location.reload();
         }
+
+        // $scope.isReady = function() {
+        //   return $scope.scene.scene && (
+        //       lodash.isObject($scope.scene.camera) || (
+        //         lodash.isObject($scope.scene.camA) &&
+        //         lodash.isObject($scope.scene.camB) &&
+        //         lodash.isObject($scope.scene.camCenter)));
+        // }
 
         $scope.toggleVisibility = function() {
           $scope.scene.hidden = !$scope.scene.hidden;
