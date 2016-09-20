@@ -172,7 +172,7 @@ angular.module('life.anatomy', [
       // templateUrl: 'views/anatomy.html',
       template: 
 					'<div class="anatomy" ng-show="isVisible()" style="background-image:{{ poster }};">'+
-					  '<span us-spinner="{radius:60, width:8, length: 32}" ng-show="!isReady()"></span>'+
+					  '<div class="spinner"><span us-spinner="{radius:20, width:3, length: 10}" ng-show="!isReady()"></span></div>'+
 					  '<span ng-show="isReady()">'+
 					  	'<iframe id="{{ id }}" ng-src="{{ url | trust }}" ng-if="url"></iframe>'+
 						  '<a href="javascript:void(0)" ng-click="toggleMode()" class="back" ng-show="!isAutoMode()"><i class="fa fa-angle-left"></i> Back</a>'+
@@ -198,10 +198,6 @@ angular.module('life.anatomy', [
 
         // Support legacy projects
         if ( lodash.isObject(scope.scene.camera) ) {
-        	if ( !lodash.isObject(scope.scene.camInit)) {
-	        	scope.scene.camInit = angular.copy(scope.scene.camera);
-	        	console.log(scope.scene.camInit);
-	        }
 					if ( !lodash.isObject(scope.scene.camA)) {
 						scope.scene.camA = angular.copy(scope.scene.camera);
 					}

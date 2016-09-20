@@ -21,8 +21,16 @@
   &.ng-hide-add.ng-hide-add-active {
     opacity: 0;
   }
-  [us-spinner] {
-    opacity: 0.3;
+  .spinner {
+    position: absolute;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    top: 0;
+    
+    [us-spinner] {
+      opacity: 0.3;
+    }
   }
 
   iframe {
