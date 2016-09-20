@@ -20,7 +20,7 @@ angular.module('life.anatomy', [
 	.controller('anatomyDirectiveCtrl', function ($scope, $rootScope, $timeout, $interval, HumanAPI, lodash, ngAudio) {
 		
 		var human = null,
-				floatDuration = 10000,
+				animationDuration = 20000,
 				ignoreScopeCameraChange = false,
 				ignoreHumanCameraChange = true,
 				sound = false;
@@ -64,7 +64,7 @@ angular.module('life.anatomy', [
 				var startedAt = getMillis();
 				animationCycle = $interval(function() {
 			  	var diff = getMillis() - startedAt;
-		  		var x = diff/floatDuration,
+		  		var x = diff/animationDuration,
 							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
 		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
