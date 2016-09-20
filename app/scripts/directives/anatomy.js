@@ -67,7 +67,7 @@ angular.module('life.anatomy', [
 		  		var x = diff/floatDuration,
 							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
-		  		var cam = tweenCamera($scope.scene.camB, $scope.scene.camA, y);
+		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
 		  		human.send('camera.set', cam);
 		  	}, 30);
 			}
@@ -109,7 +109,7 @@ angular.module('life.anatomy', [
 					
 				} else {
 					ignoreHumanCameraChange = true;
-					human.send('camera.set', lodash.extend({animate: true}, $scope.scene.camB), startAnimation );
+					human.send('camera.set', lodash.extend({animate: true}, $scope.scene.camA), startAnimation );
 				}
 			}
 
@@ -209,11 +209,10 @@ angular.module('life.anatomy', [
 					}
         }
 
-        if (!lodash.isObject(scope.scene.camInit) ||
-        		!lodash.isObject(scope.scene.camA) ||
+        if (!lodash.isObject(scope.scene.camA) ||
 						!lodash.isObject(scope.scene.camB) ||
 						!lodash.isObject(scope.scene.camCenter)) {
-        	console.warn('Missing camera details. Please set scene.camera or scene.(camInit|camA|camB|camCenter)');
+        	console.warn('Missing camera details. Please set scene.camera or scene.(camA|camB|camCenter)');
         	return;
         }
 

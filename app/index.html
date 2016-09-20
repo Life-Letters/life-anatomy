@@ -94,13 +94,13 @@
 
         // Current camera position (null when not in an interactive mode)
         $scope.camera = {};
-        $scope.cameraStr = $cookies.get('_cam') || '';
+        $scope.cameraStr = '';
+        $scope.sceneCopy = {};
 
         $scope.muteUi = false;
         $scope.scene = $cookies.getObject('_scene') || {
               scene: '',
               poster: '',
-              sound: '',
               camA: null,
               camB: null,
               camCenter: null,
@@ -112,21 +112,24 @@
         }, 500), true);
 
         $scope.$watch('cameraStr', function() {
-          $cookies.put('_cam', $scope.cameraStr);
           if ( $scope.cameraStr.length ) {
-            $scope.scene.camera = JSON.parse($scope.cameraStr);
-          } else {
-            $scope.scene.camera = null;
+            var camera = JSON.parse($scope.cameraStr);
+            $scope.scene.camA = angular.copy(camera);
+            $scope.scene.camB = angular.copy(camera);
+            $scope.scene.camCenter = angular.copy(camera);
           }
         });
 
         $scope.isReady = function() {
           return $scope.scene.scene && (
-              lodash.isObject($scope.scene.camera) || lodash.isObject($scope.scene.camInit));
+              lodash.isObject($scope.scene.camera) || (
+                lodash.isObject($scope.scene.camA) &&
+                lodash.isObject($scope.scene.camB) &&
+                lodash.isObject($scope.scene.camCenter)));
         }
         $scope.clear = function() {
-          $cookies.remove('_cam');
           $cookies.remove('_scene');
+          $window.location.reload();
         }
 
         $scope.toggleVisibility = function() {
