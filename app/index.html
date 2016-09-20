@@ -104,11 +104,11 @@
         $scope.scene = $cookies.getObject('_scene') || defaultScene;
 
         function saveScene() {
-          $scope.scene.poster = 'assets/anatomy/'+$scope.scene.scene+'.jpg';
+          $scope.scene.poster = 'http://localhost:5000/assets/anatomy/'+$scope.scene.scene+'.jpg';
           $cookies.putObject('_scene', $scope.scene);
 
           $scope.scenePruned = lodash.pick($scope.scene, lodash.keys(defaultScene));
-          $scope.scenePruned.poster = '%CONTENT_URL%/'+$scope.scene.poster;
+          $scope.scenePruned.poster = '%CONTENT_URL%/assets/anatomy/'+$scope.scene.scene+'.jpg';
         }
 
         $scope.$watch('scene', saveScene, true);
