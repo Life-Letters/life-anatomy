@@ -25,16 +25,22 @@
             scene="scene" 
             camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
       </div>
+      <br />
       <div class="container-fluid">
         <div class="row">
           <div class="col-sm-4">
-            <h4>Scene</h4>
-            <textarea ng-model="sceneStr" class="form-control" placeholder=""></textarea>
+            <textarea ng-model="sceneStr" class="form-control" placeholder="Scene object..."></textarea>
             <p><small>Copy and paste your scene object into here. The page will automatically refresh afterwards.</small></p>
             <button class="btn btn-danger" ng-click="clear()">Reset</button>
           </div><!-- .col-sm-4 -->
           <div class="col-sm-4">
-            <h4>Positions</h4>
+            <label>UI:</label>
+            <button class="btn btn-warning" ng-click="toggleUi()" ng-if="muteUi">Off</button>
+            <button class="btn btn-success" ng-click="toggleUi()" ng-if="!muteUi">On</button>
+            <label for="">Visibility:</label>
+            <button class="btn btn-warning" ng-click="toggleVisibility()" ng-if="scene.hidden">Off</button>
+            <button class="btn btn-success" ng-click="toggleVisibility()" ng-if="!scene.hidden">On</button>
+            <hr />
             <label>Set:</label>
             <button type="button" class="btn btn-default" ng-click="setCamA()">A</button>
             <button type="button" class="btn btn-default" ng-click="setCamB()">B</button>
@@ -43,20 +49,9 @@
             <button type="button" class="btn btn-default" ng-click="restoreCamA()">A</button>
             <button type="button" class="btn btn-default" ng-click="restoreCamB()">B</button>
             <button type="button" class="btn btn-default" ng-click="restoreCamCenter()">Centre</button>
-
-            <h4>Options</h4>
-            <label>UI:</label>
-            <button class="btn btn-warning" ng-click="toggleUi()" ng-if="muteUi">Off</button>
-            <button class="btn btn-success" ng-click="toggleUi()" ng-if="!muteUi">On</button>
-            <label for="">Visibility:</label>
-            <button class="btn btn-warning" ng-click="toggleVisibility()" ng-if="scene.hidden">Off</button>
-            <button class="btn btn-success" ng-click="toggleVisibility()" ng-if="!scene.hidden">On</button>
+            <pre>{{ camera | json }}</pre>
           </div><!-- .col-sm-4 -->
           <div class="col-sm-4">
-            <h4>Camera</h4>
-            <pre>{{ camera | json }}</pre>
-            <!-- <pre>{{ scene }}</pre> -->
-            <h4>Scene</h4>
             <pre>{{ scenePruned | json }}</pre>
             <!-- <pre>{{ scene | json }}</pre> -->
           </div><!-- .col-sm-4 -->
