@@ -26,28 +26,37 @@
           <div class="col-sm-8">
             <div class="anatomyFrame">
               <anatomy 
-                  ng-if="scene.scene.length"
                   scene="scene" 
                   camera="camera" ng-class="{muteUi:muteUi}"></anatomy>
             </div>
           </div><!-- .col-sm-8 -->
           <div class="col-sm-4">
+            <h4>Scene</h4>
             <input type="text" class="form-control" ng-model="scene.scene" placeholder="scene" />
+            <textarea ng-model="cameraStr" class="form-control" placholder="Default camera..."></textarea>
+            <hr />
+            <button class="btn btn-info" ng-click="toggleUi()">UI: <span ng-if="muteUi">off</span><span ng-if="!muteUi">on</span></button>
+            <button class="btn btn-info" ng-click="toggleVisibility()">Visibility: <span ng-if="scene.hidden">off</span><span ng-if="!scene.hidden">on</span></button>
+            <hr />
+            <h4>Positions</h4>
+            <button type="button" class="btn btn-default" ng-click="setCamA()">Set A</button>
+            <button type="button" class="btn btn-default" ng-click="setCamB()">Set B</button>
+            <button type="button" class="btn btn-default" ng-click="setCamCenter()">Set centre</button>
+            <br />
+            <button type="button" class="btn btn-default" ng-click="restoreCamA()">Restore A</button>
+            <button type="button" class="btn btn-default" ng-click="restoreCamB()">Restore B</button>
+            <button type="button" class="btn btn-default" ng-click="restoreCamCenter()">Restore centre</button>
+            <hr >
+            <h4>Synced camera</h4>
             <pre>{{ camera | json }}</pre>
+            <hr >
+            <button class="btn btn-danger" ng-click="clear()">Clear</button>
             <!-- <pre>{{ scene | json }}</pre> -->
           </div><!-- .col-sm-4 -->
         </div><!-- .row -->
         <div class="row">
           <div class="col-sm-12">
             <hr />
-            <ul>
-              <li>Toggle: <a href="#" ng-click="toggleVis()">visibility</a> / <a href="#" ng-click="toggleUi()">UI</a></li>
-              <li>Init: <a href="#" ng-click="setCamInit()">set</a> / <a href="#" ng-click="restoreCamInit()">restore</a></li>
-              <li>A: <a href="#" ng-click="setCamA()">set</a> / <a href="#" ng-click="restoreCamA()">restore</a></li>
-              <li>B: <a href="#" ng-click="setCamB()">set</a> / <a href="#" ng-click="restoreCamB()">restore</a></li>
-              <li>Center: <a href="#" ng-click="setCamCenter()">set</a> / <a href="#" ng-click="restoreCamCenter()">restore</a></li>
-            </ul>
-            <hr>
             <h3>Scene:</h3>
           </div><!-- .col-sm-12 -->
           <div class="col-sm-6">
@@ -81,56 +90,70 @@
       angular.module('anatomyApp', [
         'ngCookies',
         'life.anatomy',
-      ]).controller('MainCtrl', function ($scope, $cookies, lodash) {
+      ]).controller('MainCtrl', function ($scope, $cookies, lodash, $window) {
 
         // Current camera position (null when not in an interactive mode)
         $scope.camera = {};
+        $scope.cameraStr = $cookies.get('_cam') || '';
 
         $scope.muteUi = false;
-
-        console.log($cookies.getObject('_scene'));
         $scope.scene = $cookies.getObject('_scene') || {
               scene: '',
               poster: '',
               sound: '',
-              camInit: null,
               camA: null,
               camB: null,
               camCenter: null,
             };
 
         $scope.$watch('scene', lodash.debounce(function() {
-          console.log($scope.scene);
           $cookies.putObject('_scene', $scope.scene);
+          $scope.scene.poster = 'images/'+$scope.scene.scene+'.jpg';
         }, 500), true);
 
-        $scope.toggleVis = function() {
+        $scope.$watch('cameraStr', function() {
+          $cookies.put('_cam', $scope.cameraStr);
+          if ( $scope.cameraStr.length ) {
+            $scope.scene.camera = JSON.parse($scope.cameraStr);
+          } else {
+            $scope.scene.camera = null;
+          }
+        });
+
+        $scope.isReady = function() {
+          return $scope.scene.scene && (
+              lodash.isObject($scope.scene.camera) || lodash.isObject($scope.scene.camInit));
+        }
+        $scope.clear = function() {
+          $cookies.remove('_cam');
+          $cookies.remove('_scene');
+        }
+
+        $scope.toggleVisibility = function() {
           $scope.scene.hidden = !$scope.scene.hidden;
         };
         $scope.toggleUi = function() {
           $scope.muteUi = !$scope.muteUi;
         };
 
-        $scope.setCamInit = function() {
-          $scope.scene.camInit = angular.copy($scope.camera);
-        };
-        $scope.restoreCamInit = function() {
-          $scope.camera = angular.copy($scope.scene.camInit);
-        };
         $scope.setCamA = function() {
+          if ( !lodash.size($scope.camera) ) { return; }
           $scope.scene.camA = angular.copy($scope.camera);
         };
+        $scope.setCamB = function() {
+          if ( !lodash.size($scope.camera) ) { return; }
+          $scope.scene.camB = angular.copy($scope.camera);
+        };
+        $scope.setCamCenter = function() {
+          if ( !lodash.size($scope.camera) ) { return; }
+          $scope.scene.camCenter = angular.copy($scope.camera);
+        };
+
         $scope.restoreCamA = function() {
           $scope.camera = angular.copy($scope.scene.camA);
         };
-        $scope.setCamB = function() {
-          $scope.scene.camB = angular.copy($scope.camera);
-        };
         $scope.restoreCamB = function() {
           $scope.camera = angular.copy($scope.scene.camB);
-        };
-        $scope.setCamCenter = function() {
-          $scope.scene.camCenter = angular.copy($scope.camera);
         };
         $scope.restoreCamCenter = function() {
           $scope.camera = angular.copy($scope.scene.camCenter);

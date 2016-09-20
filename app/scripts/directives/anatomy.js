@@ -18,7 +18,7 @@ angular.module('life.anatomy', [
     };
   })
 	.controller('anatomyDirectiveCtrl', function ($scope, $rootScope, $timeout, $interval, HumanAPI, lodash, ngAudio) {
-
+		
 		var human = null,
 				floatDuration = 10000,
 				ignoreScopeCameraChange = false,
@@ -50,6 +50,11 @@ angular.module('life.anatomy', [
 
 		$timeout(function() {
 
+			// Check that the directive set everything up.
+			if ( !$scope.url.length ) {
+				return;
+			}
+
 			var animationCycle = false;
 
 			// Start a cycle between two camera positions
@@ -62,7 +67,7 @@ angular.module('life.anatomy', [
 		  		var x = diff/floatDuration,
 							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
-		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
+		  		var cam = tweenCamera($scope.scene.camB, $scope.scene.camA, y);
 		  		human.send('camera.set', cam);
 		  	}, 30);
 			}
@@ -98,13 +103,13 @@ angular.module('life.anatomy', [
 				// Have we switched to the manual mode?
 				if ( $scope.isManualMode() ) {
 					stopAnimation();
-					human.send('camera.set', lodash.extend({}, $scope.camera, {animate: true}), function() {
+					human.send('camera.set', lodash.extend({animate: true}, $scope.camera), function() {
 						ignoreHumanCameraChange = false;
 					});
 					
 				} else {
 					ignoreHumanCameraChange = true;
-					human.send('camera.set', lodash.extend({}, $scope.scene.camA, {animate: true}), startAnimation );
+					human.send('camera.set', lodash.extend({animate: true}, $scope.scene.camB), startAnimation );
 				}
 			}
 
@@ -127,14 +132,13 @@ angular.module('life.anatomy', [
 				if ( !$scope.modelReady || $scope.scene.hidden ) { return; }
 
 				// Reset camera
-				human.send('camera.set', $scope.scene.camInit);
-				$timeout(function() {
+				human.send('camera.set', $scope.scene.camA, function() {
 					// Restart sound
 					if (sound) { 
 						sound.play();
 					}
-					updateCamera()
-				}, 500);
+					updateCamera();
+				});
 			});
 
 			$scope.$watch('scene.hidden', function() {
@@ -156,12 +160,10 @@ angular.module('life.anatomy', [
 					sound.stop();
 					sound.destroy();
 				}
-	      if ( human ) {
-	        if ( !lodash.isUndefined(human._rpc) && !lodash.isFunction(human._rpc) ) {
-	        	console.log('destroying HumanAPI');
-	        	human._rpc.destroy();
-	        }
-	      }
+        if ( human && !lodash.isUndefined(human._rpc) && !lodash.isFunction(human._rpc) ) {
+        	console.log('destroying HumanAPI');
+        	human._rpc.destroy();
+        }
 	    });
 		});
 	})
@@ -185,19 +187,38 @@ angular.module('life.anatomy', [
       	camera: '=',
       },
       link: function postLink(scope) {
+
+      	scope.url = '';
         scope.id = lodash.uniqueId('_human-');
-
         scope.modelReady = false;
+        // Holds the user controlled camera movements.
+        // If null, the camera is not in an interactive mode, i.e. it is controlled by the anatomy system.
         scope.camera = scope.camera || {};
-
         scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
 
         // Support legacy projects
-        if ( scope.scene.camera ) {
-        	scope.scene.camInit = angular.copy(scope.scene.camera);
-					scope.scene.camA = angular.copy(scope.scene.camera);
-					scope.scene.camB = angular.copy(scope.scene.camera);
-					scope.scene.camCenter = angular.copy(scope.scene.camera);
+        if ( lodash.isObject(scope.scene.camera) ) {
+        	if ( !lodash.isObject(scope.scene.camInit)) {
+	        	scope.scene.camInit = angular.copy(scope.scene.camera);
+	        	console.log(scope.scene.camInit);
+	        }
+					if ( !lodash.isObject(scope.scene.camA)) {
+						scope.scene.camA = angular.copy(scope.scene.camera);
+					}
+					if ( !lodash.isObject(scope.scene.camB)) {
+						scope.scene.camB = angular.copy(scope.scene.camera);
+					}
+					if ( !lodash.isObject(scope.scene.camCenter)) {
+						scope.scene.camCenter = angular.copy(scope.scene.camera);
+					}
+        }
+
+        if (!lodash.isObject(scope.scene.camInit) ||
+        		!lodash.isObject(scope.scene.camA) ||
+						!lodash.isObject(scope.scene.camB) ||
+						!lodash.isObject(scope.scene.camCenter)) {
+        	console.warn('Missing camera details. Please set scene.camera or scene.(camInit|camA|camB|camCenter)');
+        	return;
         }
 
         scope.url  = 'https://human.biodigital.com/widget/?'+scope.scene.scene;
