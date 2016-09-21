@@ -22,7 +22,7 @@ angular.module('life.anatomy', [
 		var human = null,
 				animationDuration = 20000,
 				ignoreScopeCameraChange = false,
-				ignoreHumanCameraChange = true,
+				ignoreHumanCameraChange = false,
 				sound = false;
 
 		function getMillis() {
@@ -61,10 +61,18 @@ angular.module('life.anatomy', [
 			function startAnimation() {
 				if (animationCycle) { return; }
 
+				// Restart sound
+				if (sound) { 
+					sound.play();
+				}
+
 				var startedAt = getMillis();
 				animationCycle = $interval(function() {
-			  	var diff = getMillis() - startedAt;
-		  		var x = diff/animationDuration,
+					// Check that we haven't been cancelled
+					if (!animationCycle) { return; }
+
+			  	var diff = getMillis() - startedAt,
+			  			x = diff/animationDuration,
 							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
 		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
@@ -73,9 +81,13 @@ angular.module('life.anatomy', [
 			}
 
 			function stopAnimation() {
-				if (!animationCycle) { return; }
-				$interval.cancel(animationCycle);
-				animationCycle = false;
+				if (animationCycle) { 
+					$interval.cancel(animationCycle);
+					animationCycle = false;
+				}
+				if (sound) { 
+					sound.pause();
+				}
 			}
 
 			human = new HumanAPI({
@@ -84,17 +96,16 @@ angular.module('life.anatomy', [
 	        humanLog: true
 	      });
 
-			human.on('camera.updated', lodash.debounce(function(update) {
-				if ( ignoreHumanCameraChange ) { return; }
-				console.log('human cam change');
+			human.on('camera.updated', function(update) {
+				if ( $scope.isAutoMode() || ignoreHumanCameraChange ) { return; }
 
 				// Avoid responding to the camera update that the next few lines will trigger
 				ignoreScopeCameraChange = true;
 				$timeout(function() { ignoreScopeCameraChange = false; }, 500);
 
-				$scope.camera = lodash.pick(update, ['position','target','up']);
+				$scope.cameraLive = lodash.pick(update, ['position','target','up']);
 				$scope.$apply();
-			}, 500));
+			});
 			
 
 			// Animate the camera
@@ -106,20 +117,17 @@ angular.module('life.anatomy', [
 					stopAnimation();
 
 					ignoreHumanCameraChange = true;
-					human.send('camera.set', lodash.extend({animate: true}, $scope.camera), function() {
-						// The 'camera.updated' is called back after this, so we add a delay
-						$timeout(function() { 
+					human.send('camera.set', lodash.extend({animate: true}, $scope.cameraLive), function() {
+						$timeout(function() {
 							ignoreHumanCameraChange = false;
-						}, 1000); // delay needs to be >500
+						}, 500);
 					});
-					
 				} else {
-					ignoreHumanCameraChange = true;
 					human.send('camera.set', lodash.extend({animate: true}, $scope.scene.camA), startAnimation );
 				}
 			}
 
-			$scope.$watch('camera', function() {
+			$scope.$watch('cameraLive', function() {
 				if ( ignoreScopeCameraChange ) { return; }
 				updateCamera();
 			});
@@ -138,32 +146,19 @@ angular.module('life.anatomy', [
 				if ( !$scope.modelReady || $scope.scene.hidden ) { return; }
 
 				// Reset camera
-				human.send('camera.set', $scope.scene.camA, function() {
-					// Restart sound
-					if (sound) { 
-						sound.play();
-					}
-					updateCamera();
-				});
+				human.send('camera.set', $scope.scene.camA, updateCamera);
 			});
 
 			$scope.$watch('scene.hidden', function() {
 				if ( !$scope.scene.hidden ) { return; }
 				
 				stopAnimation();
-				ignoreHumanCameraChange = true;
-				if (sound) { 
-					sound.pause();
-				}
-				$scope.camera = {};
+				$scope.cameraLive = {};
 			});
 
 	    $scope.$on('$destroy', function() {
 	    	stopAnimation();
-				ignoreHumanCameraChange = true;
-
-	      if (sound) { 
-					sound.stop();
+	      if (sound) {
 					sound.destroy();
 				}
         if ( human && !lodash.isUndefined(human._rpc) && !lodash.isFunction(human._rpc) ) {
@@ -200,9 +195,26 @@ angular.module('life.anatomy', [
         // Holds the user controlled camera movements.
         // If null, the camera is not in an interactive mode, i.e. it is controlled by the anatomy system.
         scope.camera = scope.camera || {};
+        // scope.cameraLive = angular.copy(scope.camera);
         scope.poster = scope.scene.poster ? 'url(\''+scope.scene.poster+'\')' : 'none';
 
-        // Support legacy projects
+        // Immediately respond to external changes
+        scope.$watch('camera', function() {
+        	console.log('cam change', scope.camera, scope.cameraLive);
+        	if (lodash.isEqual(scope.camera, scope.cameraLive)) { return; }
+        	console.log('copy camera to live', scope.camera, scope.cameraLive);
+        	scope.cameraLive = angular.copy(scope.camera);
+        });
+        // Report changes after a small delay, to avoid rapid updates.
+        scope.$watch('cameraLive', lodash.debounce(function() {
+        	console.log('live change');
+					if (lodash.isEqual(scope.camera, scope.cameraLive)) { return; }
+					console.log('copy live to camera', scope.camera, scope.cameraLive);
+        	scope.camera = angular.copy(scope.cameraLive);
+        	scope.$apply();
+        }, 500));
+
+        // Support configs that only have a camera
         if ( lodash.isObject(scope.scene.camera) ) {
 					if ( !lodash.isObject(scope.scene.camA)) {
 						scope.scene.camA = angular.copy(scope.scene.camera);
@@ -244,7 +256,7 @@ angular.module('life.anatomy', [
         	}
         };
         scope.isManualMode = function() {
-        	return lodash.isObject(scope.camera) && lodash.size(scope.camera);
+        	return lodash.size(scope.camera);
         };
         scope.isAutoMode = function() {
         	return !scope.isManualMode();

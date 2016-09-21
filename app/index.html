@@ -20,31 +20,35 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
     <div ng-controller="MainCtrl">
-      <div class="anatomyFrame">
-        <anatomy 
-            scene="scene" 
-            camera="camera"></anatomy>
-      </div>
       <br />
       <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <label>Move to:</label>
+            <button type="button" class="btn btn-default" ng-click="restoreCamA()">A</button>
+            <button type="button" class="btn btn-default" ng-click="restoreCamB()">B</button>
+            <button type="button" class="btn btn-default" ng-click="restoreCamCenter()">Centre</button>
+            <button type="button" class="btn btn-default" ng-click="setToAutoMode()">Auto</button>
+            <label>Set:</label>
+            <button type="button" class="btn btn-default" ng-click="setCamA()">A</button>
+            <button type="button" class="btn btn-default" ng-click="setCamB()">B</button>
+            <button type="button" class="btn btn-default" ng-click="setCamCenter()">Centre</button>
+            <label for="">Visibility:</label>
+            <button class="btn btn-warning" ng-click="toggleVisibility()" ng-if="scene.hidden">Off</button>
+            <button class="btn btn-success" ng-click="toggleVisibility()" ng-if="!scene.hidden">On</button>
+          </div><!-- .col-sm-12 -->
+        </div><!-- .row -->
+        <div class="anatomyFrame">
+          <anatomy 
+              scene="scene" 
+              camera="camera"></anatomy>
+        </div>
         <div class="row">
           <div class="col-sm-4">
             <textarea ng-model="sceneStr" class="form-control" placeholder="Scene object..."></textarea>
             <p><small>Copy and paste your scene object into here. The page will automatically refresh afterwards.</small></p>
           </div><!-- .col-sm-4 -->
           <div class="col-sm-4">
-            <!-- <label for="">Visibility:</label>
-            <button class="btn btn-warning" ng-click="toggleVisibility()" ng-if="scene.hidden">Off</button>
-            <button class="btn btn-success" ng-click="toggleVisibility()" ng-if="!scene.hidden">On</button> -->
-            <label>Set:</label>
-            <button type="button" class="btn btn-default" ng-click="setCamA()">A</button>
-            <button type="button" class="btn btn-default" ng-click="setCamB()">B</button>
-            <button type="button" class="btn btn-default" ng-click="setCamCenter()">Centre</button>
-            <label>Move to:</label>
-            <button type="button" class="btn btn-default" ng-click="restoreCamA()">A</button>
-            <button type="button" class="btn btn-default" ng-click="restoreCamB()">B</button>
-            <button type="button" class="btn btn-default" ng-click="restoreCamCenter()">Centre</button>
-            <br>
             <pre>{{ camera | json }}</pre>
           </div><!-- .col-sm-4 -->
           <div class="col-sm-4">
@@ -84,6 +88,7 @@
               camA: null,
               camB: null,
               camCenter: null,
+              hidden: false,
             };
 
         // Current camera position (null when not in an interactive mode)
@@ -152,6 +157,9 @@
         };
         $scope.restoreCamCenter = function() {
           $scope.camera = angular.copy($scope.scene.camCenter);
+        };
+        $scope.setToAutoMode = function() {
+          $scope.camera = {};
         };
       });
     </script>

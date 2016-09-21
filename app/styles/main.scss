@@ -39,10 +39,12 @@ pre {
   position: relative;
   width: 1200px;
   height: 675px;
-  margin: auto;
-  border: 2px solid black;
+  margin: 10px auto;
+  border: 1px dashed #bbb;
 }
 
 label {
-  margin-left: 15px;
+  // margin-left: 15px;
+  min-width: 100px;
+  text-align: right;
 }
