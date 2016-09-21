@@ -119,7 +119,7 @@ angular.module('life.anatomy', [
 				}
 			}
 
-			$scope.$watch('camera', function(val, pVal) {
+			$scope.$watch('camera', function() {
 				if ( ignoreScopeCameraChange ) { return; }
 				updateCamera();
 			});
