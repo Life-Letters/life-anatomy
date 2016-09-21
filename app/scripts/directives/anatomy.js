@@ -86,6 +86,7 @@ angular.module('life.anatomy', [
 
 			human.on('camera.updated', lodash.debounce(function(update) {
 				if ( ignoreHumanCameraChange ) { return; }
+				console.log('human cam change');
 
 				// Avoid responding to the camera update that the next few lines will trigger
 				ignoreScopeCameraChange = true;
@@ -103,9 +104,13 @@ angular.module('life.anatomy', [
 				// Have we switched to the manual mode?
 				if ( $scope.isManualMode() ) {
 					stopAnimation();
-					console.log('setting', $scope.camera);
+
+					ignoreHumanCameraChange = true;
 					human.send('camera.set', lodash.extend({animate: true}, $scope.camera), function() {
-						ignoreHumanCameraChange = false;
+						// The 'camera.updated' is called back after this, so we add a delay
+						$timeout(function() { 
+							ignoreHumanCameraChange = false;
+						}, 1000); // delay needs to be >500
 					});
 					
 				} else {
@@ -114,7 +119,7 @@ angular.module('life.anatomy', [
 				}
 			}
 
-			$scope.$watch('camera', function() {
+			$scope.$watch('camera', function(val, pVal) {
 				if ( ignoreScopeCameraChange ) { return; }
 				updateCamera();
 			});
