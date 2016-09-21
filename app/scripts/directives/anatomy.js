@@ -200,16 +200,12 @@ angular.module('life.anatomy', [
 
         // Immediately respond to external changes
         scope.$watch('camera', function() {
-        	console.log('cam change', scope.camera, scope.cameraLive);
         	if (lodash.isEqual(scope.camera, scope.cameraLive)) { return; }
-        	console.log('copy camera to live', scope.camera, scope.cameraLive);
         	scope.cameraLive = angular.copy(scope.camera);
         });
         // Report changes after a small delay, to avoid rapid updates.
         scope.$watch('cameraLive', lodash.debounce(function() {
-        	console.log('live change');
 					if (lodash.isEqual(scope.camera, scope.cameraLive)) { return; }
-					console.log('copy live to camera', scope.camera, scope.cameraLive);
         	scope.camera = angular.copy(scope.cameraLive);
         	scope.$apply();
         }, 500));
