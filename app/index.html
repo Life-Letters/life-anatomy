@@ -104,7 +104,6 @@
               $scope.scene.scene.replace(/\.[^.]+$/, '').replace(/\//g, '--')+
               ($scope.scene.tourChapter ? '--chp'+$scope.scene.tourChapter : '');
           $scope.scene.poster = 'http://localhost:5000/assets/anatomy/'+posterName+'.jpg';
-          console.log($scope.scene.poster);
           $cookies.putObject('_scene', $scope.scene);
 
           $scope.scenePruned = lodash.omit(lodash.pick($scope.scene, lodash.keys(defaultScene)), lodash.isNull);

@@ -185,10 +185,10 @@ angular.module('life.anatomy', [
       template: 
 					'<div class="anatomy" ng-show="isVisible()" style="background-image:{{ poster }};">'+
 					  '<div class="spinner"><span us-spinner="{radius:20, width:3, length: 10}" ng-show="!isReady()"></span></div>'+
-					  '<span ng-show="isReady()">'+
+					  '<span class="anatomy--frame" ng-show="isReady()">'+
 					  	'<iframe id="{{ id }}" ng-src="{{ url | trust }}" ng-if="url"></iframe>'+
-						  '<a href="javascript:void(0)" ng-click="toggleMode()" class="back" ng-show="!isAutoMode()"><i class="fa fa-angle-left"></i> Back</a>'+
-						  '<div class="cover" ng-show="isAutoMode()" ng-click="toggleMode()"></div>'+
+						  '<a class="anatomy--back" href="javascript:void(0)" ng-click="toggleMode()" ng-show="!isAutoMode()"><i class="fa fa-angle-left"></i> Back</a>'+
+						  '<div class="anatomy--cover" ng-show="isAutoMode()" ng-click="toggleMode()"></div>'+
 						'</span>'+
 					'</div>',
       restrict: 'E',
