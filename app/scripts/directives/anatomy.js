@@ -137,8 +137,19 @@ angular.module('life.anatomy', [
 					sound = ngAudio.load($scope.scene.sound);
 					sound.loop = true;
 				}
-				$scope.modelReady = true;
-				$scope.$apply();
+				if ( $scope.scene.tourChapter ) {
+					human.send("timeline.info", function(timeline) {
+						human.send('timeline.set', {
+							chapterId: timeline.chapters[$scope.scene.tourChapter-1],
+						});
+						$timeout(function() {
+							$scope.modelReady = true;
+						});
+					});
+				} else {
+					$scope.modelReady = true;
+					$scope.$apply();
+				}
 			});
 
 			// Have we been revealed?

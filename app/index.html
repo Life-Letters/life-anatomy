@@ -88,7 +88,7 @@
               camA: null,
               camB: null,
               camCenter: null,
-              hidden: false,
+              tourChapter: null,
             };
 
         // Current camera position (null when not in an interactive mode)
@@ -100,11 +100,15 @@
         $scope.scene = $cookies.getObject('_scene') || defaultScene;
 
         function saveScene() {
-          $scope.scene.poster = 'http://localhost:5000/assets/anatomy/'+$scope.scene.scene+'.jpg';
+          var posterName = 
+              $scope.scene.scene.replace(/\.[^.]+$/, '').replace(/\//g, '--')+
+              ($scope.scene.tourChapter ? '--chp'+$scope.scene.tourChapter : '');
+          $scope.scene.poster = 'http://localhost:5000/assets/anatomy/'+posterName+'.jpg';
+          console.log($scope.scene.poster);
           $cookies.putObject('_scene', $scope.scene);
 
-          $scope.scenePruned = lodash.pick($scope.scene, lodash.keys(defaultScene));
-          $scope.scenePruned.poster = '%CONTENT_URL%/assets/anatomy/'+$scope.scene.scene+'.jpg';
+          $scope.scenePruned = lodash.omit(lodash.pick($scope.scene, lodash.keys(defaultScene)), lodash.isNull);
+          $scope.scenePruned.poster = '%CONTENT_URL%/assets/anatomy/'+posterName+'.jpg';
         }
 
         $scope.$watch('scene', saveScene, true);
