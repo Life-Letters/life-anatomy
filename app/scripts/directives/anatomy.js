@@ -23,11 +23,13 @@ angular.module('life.anatomy', [
 				animationDuration = 20000,
 				ignoreScopeCameraChange = false,
 				ignoreHumanCameraChange = false,
-				sound = false;
+				sound = false,
+				animationCycle = false;
 
 		function getMillis() {
 			return (new Date()).getTime();
 		}
+
 		function tweenVec(vec1, vec2, amount) {
 			var from = 1 - amount;
 
@@ -44,51 +46,41 @@ angular.module('life.anatomy', [
 				up: tweenVec(cam1.up, cam2.up, amount),
 			};
 		}
-		// function easeInOut(x) {
-		// 	return 3*x*x - 2*x*x*x;
-		// }
 
-		$timeout(function() {
+		// Start a cycle between two camera positions
+		function startAnimation() {
+			if (animationCycle) { return; }
 
-			// Check that the directive set everything up.
-			if ( !$scope.url.length ) {
-				return;
+			// Restart sound
+			if (sound) { 
+				sound.play();
 			}
 
-			var animationCycle = false;
+			var startedAt = getMillis();
+			animationCycle = $interval(function() {
+				// Check that we haven't been cancelled
+				if (!animationCycle) { return; }
 
-			// Start a cycle between two camera positions
-			function startAnimation() {
-				if (animationCycle) { return; }
+		  	var diff = getMillis() - startedAt,
+		  			x = diff/animationDuration,
+						y = (Math.cos(Math.PI*(2*x+1))+1)/2;
 
-				// Restart sound
-				if (sound) { 
-					sound.play();
-				}
+	  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
+	  		human.send('camera.set', cam);
+	  	}, 30);
+		}
 
-				var startedAt = getMillis();
-				animationCycle = $interval(function() {
-					// Check that we haven't been cancelled
-					if (!animationCycle) { return; }
-
-			  	var diff = getMillis() - startedAt,
-			  			x = diff/animationDuration,
-							y = (Math.cos(Math.PI*(2*x+1))+1)/2;
-
-		  		var cam = tweenCamera($scope.scene.camA, $scope.scene.camB, y);
-		  		human.send('camera.set', cam);
-		  	}, 30);
+		function stopAnimation() {
+			if (animationCycle) { 
+				$interval.cancel(animationCycle);
+				animationCycle = false;
 			}
-
-			function stopAnimation() {
-				if (animationCycle) { 
-					$interval.cancel(animationCycle);
-					animationCycle = false;
-				}
-				if (sound) { 
-					sound.pause();
-				}
+			if (sound) { 
+				sound.pause();
 			}
+		}
+		
+		function buildScene() {
 
 			human = new HumanAPI({
 	        iframeId: $scope.id,
@@ -177,15 +169,27 @@ angular.module('life.anatomy', [
         	human._rpc.destroy();
         }
 	    });
+		}
+
+		$scope.$watch('scene.delay', function() { 
+			// Check for an artifical wait period
+			if ( $scope.scene.delay ) { return; }
+		
+			// Check that the directive set everything up.
+			if ( !$scope.url.length ) { 
+				console.error('no url');
+				return;
+			}
+			$timeout(buildScene);
 		});
 	})
-  .directive('anatomy', function (lodash) {
+  .directive('anatomy', function (lodash, $timeout) {
     return {
       // templateUrl: 'views/anatomy.html',
       template: 
 					'<div class="anatomy" ng-show="isVisible()" style="background-image:{{ poster }};">'+
 					  '<div class="spinner"><span us-spinner="{radius:20, width:3, length: 10}" ng-show="!isReady()"></span></div>'+
-					  '<span class="anatomy--frame" ng-show="isReady()">'+
+					  '<span class="anatomy--frame" ng-show="isReady()" ng-if="!scene.delay">'+
 					  	'<iframe id="{{ id }}" ng-src="{{ url | trust }}" ng-if="url"></iframe>'+
 						  '<a class="anatomy--back" href="javascript:void(0)" ng-click="toggleMode()" ng-show="!isAutoMode()"><i class="fa fa-angle-left"></i> Back</a>'+
 						  '<div class="anatomy--cover" ng-show="isAutoMode()" ng-click="toggleMode()"></div>'+
@@ -198,7 +202,12 @@ angular.module('life.anatomy', [
       	scene: '=',
       	camera: '=',
       },
-      link: function postLink(scope) {
+      link: function postLink(scope, element, attrs) {
+
+      	scope.scene.delay = true;
+      	$timeout(function() {
+      		scope.scene.delay = false;
+      	}, attrs.delay ? parseInt(attrs.delay) : 0);
 
       	scope.url = '';
         scope.id = lodash.uniqueId('_human-');
