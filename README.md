@@ -1,17 +1,22 @@
 # Anatomy module and editor
 
-A directive for embedding and interacting with a 3D anatomy scene. The project utilises the [BioDigital](http://biodigital.com/) anatomy system and provides further features.
+A directive for embedding and interacting with a 3D anatomy scene. The project utilises the [BioDigital](http://biodigital.com/) anatomy system.
 
-The 3D scene can operates in one of two modes. In the *idle* mode, the model oscillates between two chosen camera positions. The user can enter the *interactive* mode by clicking, which allows them to manipulate the position and orientation of the the model.
+The 3D scene supports the following modes:
 
-The project includes an editor to configure the scene's settings and camera positions.
+- Idle: the model oscillates between two chosen camera positions. 
+- Interactive: the user can manipulate the position and orientation of the the model.
+
+On-screen controls allow the user to switch between modes.
+
+The project also includes an editor to configure the scene's settings and camera positions.
 
 
 -----
 
 ## Key Project Tech
 
-- Angular: provides app framework. Designed to be used as a module.
+- Angular: provides app framework. The project is set up to used as a module.
 - Grunt: used to launch a local `LiveReload` server and build the `dist` package.
 - [BioDigital](http://biodigital.com/): provides a collection of anatomy models. The [anatomy browser](http://human.biodigital.com/) lets you explore different scenes. A chosen scene can then be used by copying its scene name, which can be viewed when exporting the scene.
 
@@ -87,7 +92,12 @@ Publishing the module via Bower:
     camCenter: {...},
 
     // The chapter to use of an existing tour (optional)
-    tourChapter: 2
+    tourChapter: 2,
+
+    // Causes the scene to disappear. Controlling the visibility
+    // through this method allows the scene to correctly control the
+    // camera position on hide and reveal.
+    hidden: true, 
   }
 
   ```
